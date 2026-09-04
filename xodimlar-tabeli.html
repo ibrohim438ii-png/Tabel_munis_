@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xodimlar Tabeli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cocoa: #3B2417;
+    --cocoa-light: #6B4A34;
+    --cream: #FBF4E8;
+    --cream-2: #F3E8D6;
+    --raspberry: #B23A5C;
+    --raspberry-dark: #8E2C48;
+    --gold: #C79A3D;
+    --green: #4C7A55;
+    --green-bg: #E4F0E4;
+    --red: #B14C3B;
+    --red-bg: #FBEAE6;
+    --gray-bg: #E9E4DC;
+    --gray-text: #7A6E5F;
+    --line: #E4D6BE;
+    --shadow: 0 2px 10px rgba(59,36,23,0.08);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--cocoa);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 18px 14px 60px; }
+
+  header { padding: 6px 2px 16px; border-bottom: 2px solid var(--line); margin-bottom: 14px; position: relative; }
+  header .eyebrow { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--raspberry); font-weight: 600; margin-bottom: 4px; }
+  header h1 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 26px; margin: 0; line-height: 1.15; }
+  header .sig { position: absolute; right: 2px; top: 2px; width: 42px; height: 42px; border-radius: 50%; background: radial-gradient(circle at 32% 28%, var(--gold), var(--raspberry) 70%); box-shadow: var(--shadow); }
+
+  .tabs { display: flex; gap: 5px; margin-bottom: 14px; background: var(--cream-2); padding: 4px; border-radius: 12px; overflow-x: auto; }
+  .tab { flex: 1; text-align: center; padding: 9px 3px; border-radius: 9px; font-size: 12px; font-weight: 600; color: var(--cocoa-light); cursor: pointer; user-select: none; white-space: nowrap; transition: background .15s, color .15s; }
+  .tab.active { background: var(--cocoa); color: var(--cream); }
+
+  .month-bar { display: flex; align-items: center; justify-content: space-between; background: white; border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .month-bar button { border: none; background: var(--cream-2); color: var(--cocoa); width: 30px; height: 30px; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .month-bar .mlabel { font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px; text-transform: capitalize; }
+
+  .summary { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .summary .card { flex: 1; min-width: 90px; background: white; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; box-shadow: var(--shadow); }
+  .summary .card .num { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; color: var(--raspberry-dark); }
+  .summary .card .lbl { font-size: 10px; color: var(--cocoa-light); margin-top: 2px; }
+
+  select.emp-select, select.month-select {
+    width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+    font-size: 14px; font-weight: 600; background: white; color: var(--cocoa); margin-bottom: 12px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .item { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
+  .item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
+  .item-top input.name { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; border: none; background: transparent; flex: 1; color: var(--cocoa); padding: 2px 0; border-bottom: 1px dashed transparent; }
+  .item-top input.name:focus { outline: none; border-bottom: 1px dashed var(--gold); }
+  .del { color: var(--red); font-size: 12px; font-weight: 600; cursor: pointer; padding: 4px 8px; border-radius: 7px; background: var(--red-bg); border: none; flex-shrink: 0; }
+
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .field { display: flex; flex-direction: column; gap: 3px; }
+  .field label { font-size: 10px; color: var(--cocoa-light); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  .field input { border: 1px solid var(--line); border-radius: 8px; padding: 7px 8px; font-size: 13.5px; font-family: 'Inter', sans-serif; background: var(--cream-2); color: var(--cocoa); width: 100%; }
+  .field input:focus { outline: none; border-color: var(--gold); background: white; }
+
+  .add-btn { width: 100%; padding: 13px; border-radius: 12px; border: 2px dashed var(--raspberry); background: transparent; color: var(--raspberry-dark); font-weight: 700; font-size: 14px; font-family: 'Inter', sans-serif; cursor: pointer; margin-top: 4px; }
+  .add-btn:active { background: var(--cream-2); }
+
+  .save-note { text-align: center; font-size: 11px; color: var(--cocoa-light); margin-top: 14px; opacity: .75; }
+  .empty { text-align: center; padding: 40px 12px; color: var(--cocoa-light); font-size: 13.5px; }
+
+  /* Davomat */
+  .day-row { display: flex; align-items: center; justify-content: space-between; background: white; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; }
+  .day-row .dinfo { font-size: 13px; font-weight: 600; }
+  .day-row .dinfo .wd { font-size: 10.5px; color: var(--cocoa-light); font-weight: 500; margin-left: 5px; }
+  .day-row.weekend { background: var(--cream-2); }
+  .status-btn { border: none; padding: 6px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 700; cursor: pointer; min-width: 78px; text-align: center; }
+  .status-btn.keldi { background: var(--green-bg); color: var(--green); }
+  .status-btn.kelmadi { background: var(--red-bg); color: var(--red); }
+  .status-btn.dam { background: var(--gray-bg); color: var(--gray-text); }
+  .status-btn.none { background: #F5F0E6; color: #B8AC98; border: 1px dashed #D8CBB0; }
+
+  /* Avans */
+  .adv-row { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 6px; }
+  .adv-row .ainfo { font-size: 13px; }
+  .adv-row .ainfo .adate { color: var(--cocoa-light); font-size: 11px; }
+  .adv-row .aamt { font-family: 'Fraunces', serif; font-weight: 600; color: var(--raspberry-dark); }
+  .adv-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .adv-form input { border: 1px solid var(--line); border-radius: 8px; padding: 8px 9px; font-size: 13px; background: var(--cream-2); font-family: 'Inter', sans-serif; }
+  .adv-form input:focus { outline: none; border-color: var(--gold); background: white; }
+
+  /* Hisobot */
+  .rep-card { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
+  .rep-name { font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px; margin-bottom: 8px; }
+  .rep-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; font-size: 12.5px; }
+  .rep-grid .rlbl { color: var(--cocoa-light); }
+  .rep-grid .rval { font-weight: 600; text-align: right; }
+  .rep-final { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); display: flex; justify-content: space-between; align-items: center; }
+  .rep-final .flbl { font-size: 12.5px; font-weight: 700; color: var(--cocoa-light); }
+  .rep-final .fval { font-family: 'Fraunces', serif; font-weight: 700; font-size: 17px; color: var(--raspberry-dark); }
+  .company-total { background: var(--cocoa); color: var(--cream); border-radius: 14px; padding: 16px; margin-bottom: 14px; text-align: center; }
+  .company-total .ct-num { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; color: var(--gold); }
+  .company-total .ct-lbl { font-size: 11px; opacity: .85; margin-top: 3px; text-transform: uppercase; letter-spacing: .08em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="sig"></div>
+    <div class="eyebrow">Xodimlar nazorati</div>
+    <h1>Xodimlar Tabeli</h1>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="employees">Xodimlar</div>
+    <div class="tab" data-tab="attendance">Davomat</div>
+    <div class="tab" data-tab="advances">Avanslar</div>
+    <div class="tab" data-tab="report">Hisobot</div>
+  </div>
+
+  <div id="monthBarHolder"></div>
+  <div id="summary" class="summary"></div>
+  <div id="content"></div>
+  <div id="addBtnHolder"></div>
+  <div class="save-note" id="saveNote">Ma'lumotlar avtomatik saqlanadi</div>
+</div>
+
+<script>
+const KEY = 'xodimlar-tabeli-data';
+let state = null;
+let activeTab = 'employees';
+let saveTimer = null;
+let selectedEmp = null; // for attendance/advances tabs
+const now = new Date();
+let curYear = now.getFullYear();
+let curMonth = now.getMonth() + 1; // 1-12
+
+const defaultState = {
+  employees: [
+    {id: 1, name: "Aziza Karimova", salary: 3000000, normDays: 26},
+    {id: 2, name: "Bekzod Yusupov", salary: 2800000, normDays: 26},
+  ],
+  attendance: {}, // { empId: { "YYYY-MM-DD": "keldi"|"kelmadi"|"dam" } }
+  advances: [] // { id, empId, date, amount, note }
+};
+
+const WD_NAMES = ["Yak","Dush","Sesh","Chor","Pay","Juma","Shan"];
+const MONTH_NAMES = ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"];
+
+function fmt(n) {
+  n = Number(n) || 0;
+  return Math.round(n).toLocaleString('en-US').replace(/,/g, ' ');
+}
+function pad(n) { return String(n).padStart(2, '0'); }
+function daysInMonth(y, m) { return new Date(y, m, 0).getDate(); }
+function dateKey(y, m, d) { return `${y}-${pad(m)}-${pad(d)}`; }
+function nextEmpId() {
+  return state.employees.reduce((mx, e) => Math.max(mx, e.id), 0) + 1;
+}
+function nextAdvId() {
+  return state.advances.reduce((mx, a) => Math.max(mx, a.id), 0) + 1;
+}
+
+async function load() {
+  try {
+    const res = await window.storage.get(KEY, false);
+    state = res ? JSON.parse(res.value) : JSON.parse(JSON.stringify(defaultState));
+  } catch (e) {
+    state = JSON.parse(JSON.stringify(defaultState));
+  }
+  if (state.employees.length && selectedEmp === null) selectedEmp = state.employees[0].id;
+  render();
+}
+
+function scheduleSave() {
+  const note = document.getElementById('saveNote');
+  note.textContent = 'Saqlanmoqda...';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try {
+      await window.storage.set(KEY, JSON.stringify(state), false);
+      note.textContent = 'Saqlandi ✓';
+      setTimeout(() => { note.textContent = "Ma'lumotlar avtomatik saqlanadi"; }, 1500);
+    } catch (e) {
+      note.textContent = 'Saqlashda xatolik yuz berdi';
+    }
+  }, 400);
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  render();
+}
+
+function changeMonth(delta) {
+  curMonth += delta;
+  if (curMonth > 12) { curMonth = 1; curYear++; }
+  if (curMonth < 1) { curMonth = 12; curYear--; }
+  render();
+}
+
+/* ---------- EMPLOYEES ---------- */
+function addEmployee() {
+  state.employees.push({id: nextEmpId(), name: "", salary: 0, normDays: 26});
+  render();
+  scheduleSave();
+}
+function delEmployee(id) {
+  state.employees = state.employees.filter(e => e.id !== id);
+  delete state.attendance[id];
+  state.advances = state.advances.filter(a => a.empId !== id);
+  if (selectedEmp === id) selectedEmp = state.employees.length ? state.employees[0].id : null;
+  render();
+  scheduleSave();
+}
+function updateEmp(id, field, value, isNumber) {
+  const emp = state.employees.find(e => e.id === id);
+  emp[field] = isNumber ? (parseFloat(value) || 0) : value;
+  scheduleSave();
+}
+
+/* ---------- ATTENDANCE ---------- */
+function cycleStatus(empId, key) {
+  if (!state.attendance[empId]) state.attendance[empId] = {};
+  const cur = state.attendance[empId][key];
+  const order = [undefined, 'keldi', 'kelmadi', 'dam'];
+  const idx = order.indexOf(cur);
+  const next = order[(idx + 1) % order.length];
+  if (next === undefined) delete state.attendance[empId][key];
+  else state.attendance[empId][key] = next;
+  scheduleSave();
+  render();
+}
+
+/* ---------- ADVANCES ---------- */
+function addAdvance() {
+  const dateInput = document.getElementById('advDate');
+  const amtInput = document.getElementById('advAmt');
+  const noteInput = document.getElementById('advNote');
+  const date = dateInput.value || dateKey(curYear, curMonth, 1);
+  const amount = parseFloat(amtInput.value) || 0;
+  const note = noteInput.value || '';
+  if (!selectedEmp || amount <= 0) return;
+  state.advances.push({id: nextAdvId(), empId: selectedEmp, date, amount, note});
+  scheduleSave();
+  render();
+}
+function delAdvance(id) {
+  state.advances = state.advances.filter(a => a.id !== id);
+  scheduleSave();
+  render();
+}
+
+/* ---------- CALC ---------- */
+function empMonthStats(empId, y, m) {
+  const dim = daysInMonth(y, m);
+  const att = state.attendance[empId] || {};
+  let keldi = 0, kelmadi = 0, dam = 0;
+  for (let d = 1; d <= dim; d++) {
+    const st = att[dateKey(y, m, d)];
+    if (st === 'keldi') keldi++;
+    else if (st === 'kelmadi') kelmadi++;
+    else if (st === 'dam') dam++;
+  }
+  const emp = state.employees.find(e => e.id === empId);
+  const normDays = (emp && emp.normDays) || 26;
+  const salary = (emp && emp.salary) || 0;
+  const kunlikStavka = normDays > 0 ? salary / normDays : 0;
+  const ishlaganSumma = kunlikStavka * keldi;
+  const advJami = state.advances
+    .filter(a => a.empId === empId && a.date.startsWith(`${y}-${pad(m)}`))
+    .reduce((s, a) => s + a.amount, 0);
+  const qoldiq = ishlaganSumma - advJami;
+  return { keldi, kelmadi, dam, kunlikStavka, ishlaganSumma, advJami, qoldiq, salary };
+}
+
+/* ---------- RENDER ---------- */
+function render() {
+  renderMonthBar();
+  renderSummary();
+  renderContent();
+  renderAddBtn();
+}
+
+function renderMonthBar() {
+  const holder = document.getElementById('monthBarHolder');
+  if (activeTab === 'employees') { holder.innerHTML = ''; return; }
+  holder.innerHTML = `
+    <div class="month-bar">
+      <button onclick="changeMonth(-1)">‹</button>
+      <div class="mlabel">${MONTH_NAMES[curMonth-1]} ${curYear}</div>
+      <button onclick="changeMonth(1)">›</button>
+    </div>`;
+}
+
+function renderSummary() {
+  const summary = document.getElementById('summary');
+  if (activeTab === 'employees') {
+    summary.innerHTML = `
+      <div class="card"><div class="num">${state.employees.length}</div><div class="lbl">Jami xodimlar</div></div>
+      <div class="card"><div class="num">${fmt(state.employees.reduce((s,e)=>s+(e.salary||0),0))}</div><div class="lbl">Jami oylik fond (so'm)</div></div>`;
+  } else if (activeTab === 'attendance') {
+    if (!selectedEmp) { summary.innerHTML = ''; return; }
+    const st = empMonthStats(selectedEmp, curYear, curMonth);
+    summary.innerHTML = `
+      <div class="card"><div class="num">${st.keldi}</div><div class="lbl">Keldi</div></div>
+      <div class="card"><div class="num">${st.kelmadi}</div><div class="lbl">Kelmadi</div></div>
+      <div class="card"><div class="num">${st.dam}</div><div class="lbl">Dam olish</div></div>`;
+  } else if (activeTab === 'advances') {
+    if (!selectedEmp) { summary.innerHTML = ''; return; }
+    const st = empMonthStats(selectedEmp, curYear, curMonth);
+    summary.innerHTML = `
+      <div class="card"><div class="num">${fmt(st.advJami)}</div><div class="lbl">Shu oy avans (so'm)</div></div>
+      <div class="card"><div class="num">${fmt(st.qoldiq)}</div><div class="lbl">Joriy qoldiq (so'm)</div></div>`;
+  } else if (activeTab === 'report') {
+    const totalPay = state.employees.reduce((s,e)=> s + empMonthStats(e.id, curYear, curMonth).ishlaganSumma, 0);
+    const totalAdv = state.employees.reduce((s,e)=> s + empMonthStats(e.id, curYear, curMonth).advJami, 0);
+    const totalLeft = totalPay - totalAdv;
+    summary.innerHTML = `
+      <div class="card"><div class="num">${fmt(totalPay)}</div><div class="lbl">Jami ishlangan (so'm)</div></div>
+      <div class="card"><div class="num">${fmt(totalAdv)}</div><div class="lbl">Jami avans (so'm)</div></div>
+      <div class="card"><div class="num">${fmt(totalLeft)}</div><div class="lbl">Jami to'lanadigan (so'm)</div></div>`;
+  }
+}
+
+function empSelectHtml() {
+  if (!state.employees.length) return `<div class="empty">Avval "Xodimlar" bo'limida xodim qo'shing.</div>`;
+  return `<select class="emp-select" onchange="selectedEmp = parseInt(this.value); render();">
+    ${state.employees.map(e => `<option value="${e.id}" ${e.id===selectedEmp?'selected':''}>${e.name || 'Ism kiritilmagan'}</option>`).join('')}
+  </select>`;
+}
+
+function renderContent() {
+  const content = document.getElementById('content');
+
+  if (activeTab === 'employees') {
+    if (!state.employees.length) {
+      content.innerHTML = `<div class="empty">Hali xodim yo'q.<br>"+ Yangi xodim" tugmasini bosing.</div>`;
+      return;
+    }
+    content.innerHTML = state.employees.map(e => `
+      <div class="item">
+        <div class="item-top">
+          <input class="name" placeholder="Ism familiya" value="${e.name}" onchange="updateEmp(${e.id},'name',this.value,false)">
+          <button class="del" onclick="delEmployee(${e.id})">O'chirish</button>
+        </div>
+        <div class="field-grid">
+          <div class="field"><label>Oylik maosh (so'm)</label><input type="number" value="${e.salary}" onchange="updateEmp(${e.id},'salary',this.value,true)"></div>
+          <div class="field"><label>Ish kunlari me'yori</label><input type="number" value="${e.normDays}" onchange="updateEmp(${e.id},'normDays',this.value,true)"></div>
+        </div>
+      </div>`).join('');
+    return;
+  }
+
+  if (activeTab === 'attendance') {
+    let html = empSelectHtml();
+    if (selectedEmp) {
+      const dim = daysInMonth(curYear, curMonth);
+      const att = state.attendance[selectedEmp] || {};
+      html += '<div>';
+      for (let d = 1; d <= dim; d++) {
+        const key = dateKey(curYear, curMonth, d);
+        const wd = new Date(curYear, curMonth-1, d).getDay();
+        const st = att[key];
+        const isWeekend = wd === 0 || wd === 6;
+        const cls = st || 'none';
+        const label = st === 'keldi' ? 'Keldi' : st === 'kelmadi' ? 'Kelmadi' : st === 'dam' ? 'Dam olish' : "Belgilanmagan";
+        html += `<div class="day-row ${isWeekend ? 'weekend' : ''}">
+          <div class="dinfo">${d}-kun <span class="wd">${WD_NAMES[wd]}</span></div>
+          <button class="status-btn ${cls}" onclick="cycleStatus(${selectedEmp}, '${key}')">${label}</button>
+        </div>`;
+      }
+      html += '</div>';
+    }
+    content.innerHTML = html;
+    return;
+  }
+
+  if (activeTab === 'advances') {
+    let html = empSelectHtml();
+    if (selectedEmp) {
+      html += `
+        <div class="adv-form">
+          <input type="date" id="advDate" value="${dateKey(curYear, curMonth, Math.min(now.getDate(), daysInMonth(curYear,curMonth)))}">
+          <input type="number" id="advAmt" placeholder="Summa (so'm)">
+          <input type="text" id="advNote" placeholder="Izoh (ixtiyoriy)" style="grid-column: span 2;">
+        </div>
+        <button class="add-btn" style="margin-bottom:14px;" onclick="addAdvance()">+ Avans qo'shish</button>`;
+      const list = state.advances
+        .filter(a => a.empId === selectedEmp)
+        .sort((a,b) => b.date.localeCompare(a.date));
+      if (!list.length) {
+        html += `<div class="empty">Hali avans yozuvi yo'q.</div>`;
+      } else {
+        html += list.map(a => `
+          <div class="adv-row">
+            <div class="ainfo">
+              <div>${a.note || 'Avans'}</div>
+              <div class="adate">${a.date}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="aamt">${fmt(a.amount)} so'm</div>
+              <button class="del" onclick="delAdvance(${a.id})">✕</button>
+            </div>
+          </div>`).join('');
+      }
+    }
+    content.innerHTML = html;
+    return;
+  }
+
+  if (activeTab === 'report') {
+    if (!state.employees.length) {
+      content.innerHTML = `<div class="empty">Hali xodim yo'q.</div>`;
+      return;
+    }
+    content.innerHTML = state.employees.map(e => {
+      const st = empMonthStats(e.id, curYear, curMonth);
+      return `
+        <div class="rep-card">
+          <div class="rep-name">${e.name || 'Ism kiritilmagan'}</div>
+          <div class="rep-grid">
+            <div class="rlbl">Ishlagan kunlar</div><div class="rval">${st.keldi} kun</div>
+            <div class="rlbl">Kelmagan kunlar</div><div class="rval">${st.kelmadi} kun</div>
+            <div class="rlbl">Oylik maosh</div><div class="rval">${fmt(st.salary)} so'm</div>
+            <div class="rlbl">Kunlik stavka</div><div class="rval">${fmt(st.kunlikStavka)} so'm</div>
+            <div class="rlbl">Ishlagan summa</div><div class="rval">${fmt(st.ishlaganSumma)} so'm</div>
+            <div class="rlbl">Olgan avans</div><div class="rval">${fmt(st.advJami)} so'm</div>
+          </div>
+          <div class="rep-final">
+            <div class="flbl">OXIRGI QOLDIQ (to'lanadigan)</div>
+            <div class="fval">${fmt(st.qoldiq)} so'm</div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+}
+
+function renderAddBtn() {
+  const holder = document.getElementById('addBtnHolder');
+  if (activeTab === 'employees') {
+    holder.innerHTML = `<button class="add-btn" id="addBtn">+ Yangi xodim</button>`;
+    document.getElementById('addBtn').addEventListener('click', addEmployee);
+  } else {
+    holder.innerHTML = '';
+  }
+}
+
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+
+load();
+</script>
+</body>
+</html>
