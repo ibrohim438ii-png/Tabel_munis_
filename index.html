@@ -170,8 +170,8 @@ function nextAdvId() {
 
 async function load() {
   try {
-    const res = await window.storage.get(KEY, false);
-    state = res ? JSON.parse(res.value) : JSON.parse(JSON.stringify(defaultState));
+    const raw = localStorage.getItem(KEY);
+    state = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(defaultState));
   } catch (e) {
     state = JSON.parse(JSON.stringify(defaultState));
   }
@@ -183,9 +183,9 @@ function scheduleSave() {
   const note = document.getElementById('saveNote');
   note.textContent = 'Saqlanmoqda...';
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
+  saveTimer = setTimeout(() => {
     try {
-      await window.storage.set(KEY, JSON.stringify(state), false);
+      localStorage.setItem(KEY, JSON.stringify(state));
       note.textContent = 'Saqlandi ✓';
       setTimeout(() => { note.textContent = "Ma'lumotlar avtomatik saqlanadi"; }, 1500);
     } catch (e) {
