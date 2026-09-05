@@ -4,8 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Xodimlar Tabeli</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3B2417">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
     --cocoa: #3B2417;
@@ -25,19 +29,13 @@
     --shadow: 0 2px 10px rgba(59,36,23,0.08);
   }
   * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background: var(--cream);
-    color: var(--cocoa);
-    -webkit-tap-highlight-color: transparent;
-  }
-  .wrap { max-width: 640px; margin: 0 auto; padding: 18px 14px 60px; }
+  body { margin: 0; font-family: 'Inter', sans-serif; background: var(--cream); color: var(--cocoa); -webkit-tap-highlight-color: transparent; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 18px 14px 60px; display: none; }
 
-  header { padding: 6px 2px 16px; border-bottom: 2px solid var(--line); margin-bottom: 14px; position: relative; }
+  header { padding: 6px 2px 16px; border-bottom: 2px solid var(--line); margin-bottom: 14px; position: relative; display: flex; align-items: flex-start; justify-content: space-between; }
   header .eyebrow { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--raspberry); font-weight: 600; margin-bottom: 4px; }
   header h1 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 26px; margin: 0; line-height: 1.15; }
-  header .sig { position: absolute; right: 2px; top: 2px; width: 42px; height: 42px; border-radius: 50%; background: radial-gradient(circle at 32% 28%, var(--gold), var(--raspberry) 70%); box-shadow: var(--shadow); }
+  header .sig { width: 42px; height: 42px; border-radius: 50%; background: radial-gradient(circle at 32% 28%, var(--gold), var(--raspberry) 70%); box-shadow: var(--shadow); flex-shrink: 0; cursor: pointer; }
 
   .tabs { display: flex; gap: 5px; margin-bottom: 14px; background: var(--cream-2); padding: 4px; border-radius: 12px; overflow-x: auto; }
   .tab { flex: 1; text-align: center; padding: 9px 3px; border-radius: 9px; font-size: 12px; font-weight: 600; color: var(--cocoa-light); cursor: pointer; user-select: none; white-space: nowrap; transition: background .15s, color .15s; }
@@ -52,11 +50,7 @@
   .summary .card .num { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; color: var(--raspberry-dark); }
   .summary .card .lbl { font-size: 10px; color: var(--cocoa-light); margin-top: 2px; }
 
-  select.emp-select, select.month-select {
-    width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
-    font-size: 14px; font-weight: 600; background: white; color: var(--cocoa); margin-bottom: 12px;
-    font-family: 'Inter', sans-serif;
-  }
+  select.emp-select { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 600; background: white; color: var(--cocoa); margin-bottom: 12px; font-family: 'Inter', sans-serif; }
 
   .item { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
   .item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
@@ -66,17 +60,19 @@
 
   .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .field { display: flex; flex-direction: column; gap: 3px; }
+  .field.full { grid-column: span 2; }
   .field label { font-size: 10px; color: var(--cocoa-light); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
   .field input { border: 1px solid var(--line); border-radius: 8px; padding: 7px 8px; font-size: 13.5px; font-family: 'Inter', sans-serif; background: var(--cream-2); color: var(--cocoa); width: 100%; }
   .field input:focus { outline: none; border-color: var(--gold); background: white; }
 
   .add-btn { width: 100%; padding: 13px; border-radius: 12px; border: 2px dashed var(--raspberry); background: transparent; color: var(--raspberry-dark); font-weight: 700; font-size: 14px; font-family: 'Inter', sans-serif; cursor: pointer; margin-top: 4px; }
   .add-btn:active { background: var(--cream-2); }
+  .solid-btn { width: 100%; padding: 13px; border-radius: 12px; border: none; background: var(--cocoa); color: var(--cream); font-weight: 700; font-size: 14px; font-family: 'Inter', sans-serif; cursor: pointer; margin-bottom: 14px; }
+  .solid-btn:active { opacity: .85; }
 
   .save-note { text-align: center; font-size: 11px; color: var(--cocoa-light); margin-top: 14px; opacity: .75; }
   .empty { text-align: center; padding: 40px 12px; color: var(--cocoa-light); font-size: 13.5px; }
 
-  /* Davomat */
   .day-row { display: flex; align-items: center; justify-content: space-between; background: white; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; }
   .day-row .dinfo { font-size: 13px; font-weight: 600; }
   .day-row .dinfo .wd { font-size: 10.5px; color: var(--cocoa-light); font-weight: 500; margin-left: 5px; }
@@ -87,7 +83,6 @@
   .status-btn.dam { background: var(--gray-bg); color: var(--gray-text); }
   .status-btn.none { background: #F5F0E6; color: #B8AC98; border: 1px dashed #D8CBB0; }
 
-  /* Avans */
   .adv-row { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 6px; }
   .adv-row .ainfo { font-size: 13px; }
   .adv-row .ainfo .adate { color: var(--cocoa-light); font-size: 11px; }
@@ -96,26 +91,56 @@
   .adv-form input { border: 1px solid var(--line); border-radius: 8px; padding: 8px 9px; font-size: 13px; background: var(--cream-2); font-family: 'Inter', sans-serif; }
   .adv-form input:focus { outline: none; border-color: var(--gold); background: white; }
 
-  /* Hisobot */
   .rep-card { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
-  .rep-name { font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px; margin-bottom: 8px; }
+  .rep-name { font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px; margin-bottom: 2px; }
+  .rep-phone { font-size: 11.5px; color: var(--cocoa-light); margin-bottom: 8px; }
   .rep-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; font-size: 12.5px; }
   .rep-grid .rlbl { color: var(--cocoa-light); }
   .rep-grid .rval { font-weight: 600; text-align: right; }
   .rep-final { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); display: flex; justify-content: space-between; align-items: center; }
   .rep-final .flbl { font-size: 12.5px; font-weight: 700; color: var(--cocoa-light); }
   .rep-final .fval { font-family: 'Fraunces', serif; font-weight: 700; font-size: 17px; color: var(--raspberry-dark); }
-  .company-total { background: var(--cocoa); color: var(--cream); border-radius: 14px; padding: 16px; margin-bottom: 14px; text-align: center; }
-  .company-total .ct-num { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; color: var(--gold); }
-  .company-total .ct-lbl { font-size: 11px; opacity: .85; margin-top: 3px; text-transform: uppercase; letter-spacing: .08em; }
+  .send-row { display: flex; gap: 8px; margin-top: 10px; }
+  .send-btn { flex: 1; border: none; border-radius: 9px; padding: 9px 6px; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; text-align: center; display: block; }
+  .send-btn.sms { background: var(--cream-2); color: var(--cocoa); }
+  .send-btn.wa { background: #E4F0E4; color: var(--green); }
+  .send-btn.disabled { opacity: .4; pointer-events: none; }
+
+  /* Lock screen */
+  #lockScreen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .lock-card { background: white; border: 1px solid var(--line); border-radius: 18px; padding: 28px 22px; box-shadow: var(--shadow); max-width: 340px; width: 100%; text-align: center; }
+  .lock-card .sig-lg { width: 54px; height: 54px; border-radius: 50%; background: radial-gradient(circle at 32% 28%, var(--gold), var(--raspberry) 70%); margin: 0 auto 14px; }
+  .lock-card h2 { font-family: 'Fraunces', serif; font-size: 19px; margin: 0 0 6px; }
+  .lock-card p { font-size: 12.5px; color: var(--cocoa-light); margin: 0 0 16px; }
+  .pin-input { width: 100%; text-align: center; letter-spacing: 10px; font-size: 22px; font-family: 'Fraunces', serif; border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--cream-2); margin-bottom: 10px; }
+  .pin-input:focus { outline: none; border-color: var(--gold); background: white; }
+  .lock-err { color: var(--red); font-size: 12px; font-weight: 600; margin-bottom: 8px; min-height: 16px; }
+
+  .settings-panel { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .settings-panel h3 { font-family: 'Fraunces', serif; font-size: 15px; margin: 0 0 10px; }
+  .settings-panel .field { margin-bottom: 8px; }
 </style>
 </head>
 <body>
-<div class="wrap">
+
+<div id="lockScreen">
+  <div class="lock-card">
+    <div class="sig-lg"></div>
+    <h2 id="lockTitle">PIN kiriting</h2>
+    <p id="lockSubtitle">Ma'lumotlarni himoya qilish uchun PIN kodni kiriting</p>
+    <input type="password" inputmode="numeric" maxlength="4" class="pin-input" id="pinInput" placeholder="••••">
+    <div class="lock-err" id="lockErr"></div>
+    <button class="solid-btn" id="pinBtn" style="margin-bottom:0;">Kirish</button>
+  </div>
+</div>
+
+<div class="wrap" id="mainWrap">
   <header>
-    <div class="sig"></div>
-    <div class="eyebrow">Xodimlar nazorati</div>
-    <h1>Xodimlar Tabeli</h1>
+    <div>
+      <div class="eyebrow">Xodimlar nazorati</div>
+      <h1>Xodimlar Tabeli</h1>
+    </div>
+    <div class="sig" id="settingsBtn" title="PIN sozlamalari"></div>
   </header>
 
   <div class="tabs">
@@ -127,51 +152,106 @@
 
   <div id="monthBarHolder"></div>
   <div id="summary" class="summary"></div>
+  <div id="settingsHolder"></div>
   <div id="content"></div>
   <div id="addBtnHolder"></div>
-  <div class="save-note" id="saveNote">Ma'lumotlar avtomatik saqlanadi</div>
+  <div class="save-note" id="saveNote">Ma'lumotlar shu qurilmada avtomatik saqlanadi</div>
 </div>
 
 <script>
 const KEY = 'xodimlar-tabeli-data';
+const PIN_KEY = 'xodimlar-tabeli-pin';
 let state = null;
 let activeTab = 'employees';
 let saveTimer = null;
-let selectedEmp = null; // for attendance/advances tabs
+let selectedEmp = null;
+let showSettings = false;
 const now = new Date();
 let curYear = now.getFullYear();
-let curMonth = now.getMonth() + 1; // 1-12
+let curMonth = now.getMonth() + 1;
 
 const defaultState = {
   employees: [
-    {id: 1, name: "Aziza Karimova", salary: 3000000, normDays: 26},
-    {id: 2, name: "Bekzod Yusupov", salary: 2800000, normDays: 26},
+    {id: 1, name: "Aziza Karimova", salary: 3000000, normDays: 26, phone: "998901234567"},
+    {id: 2, name: "Bekzod Yusupov", salary: 2800000, normDays: 26, phone: ""},
   ],
-  attendance: {}, // { empId: { "YYYY-MM-DD": "keldi"|"kelmadi"|"dam" } }
-  advances: [] // { id, empId, date, amount, note }
+  attendance: {},
+  advances: []
 };
 
 const WD_NAMES = ["Yak","Dush","Sesh","Chor","Pay","Juma","Shan"];
 const MONTH_NAMES = ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"];
 
-function fmt(n) {
-  n = Number(n) || 0;
-  return Math.round(n).toLocaleString('en-US').replace(/,/g, ' ');
-}
+function fmt(n) { n = Number(n) || 0; return Math.round(n).toLocaleString('en-US').replace(/,/g, ' '); }
 function pad(n) { return String(n).padStart(2, '0'); }
 function daysInMonth(y, m) { return new Date(y, m, 0).getDate(); }
 function dateKey(y, m, d) { return `${y}-${pad(m)}-${pad(d)}`; }
-function nextEmpId() {
-  return state.employees.reduce((mx, e) => Math.max(mx, e.id), 0) + 1;
-}
-function nextAdvId() {
-  return state.advances.reduce((mx, a) => Math.max(mx, a.id), 0) + 1;
+function nextEmpId() { return state.employees.reduce((mx, e) => Math.max(mx, e.id), 0) + 1; }
+function nextAdvId() { return state.advances.reduce((mx, a) => Math.max(mx, a.id), 0) + 1; }
+function cleanPhone(p) { return (p || '').replace(/[^0-9]/g, ''); }
+
+/* ---------------- PIN LOCK ---------------- */
+function initLock() {
+  const savedPin = localStorage.getItem(PIN_KEY);
+  const title = document.getElementById('lockTitle');
+  const subtitle = document.getElementById('lockSubtitle');
+  const input = document.getElementById('pinInput');
+  const err = document.getElementById('lockErr');
+  const btn = document.getElementById('pinBtn');
+
+  if (!savedPin) {
+    title.textContent = "PIN o'rnating";
+    subtitle.textContent = "Bu ilova ma'lumotlarini faqat siz o'zgartira olishingiz uchun 4 xonali PIN yarating";
+    let step = 1;
+    let firstPin = '';
+    btn.onclick = () => {
+      const val = input.value.trim();
+      if (val.length !== 4 || !/^\d{4}$/.test(val)) { err.textContent = "4 ta raqam kiriting"; return; }
+      if (step === 1) {
+        firstPin = val;
+        step = 2;
+        input.value = '';
+        err.textContent = '';
+        subtitle.textContent = "PIN kodni tasdiqlash uchun qayta kiriting";
+        return;
+      }
+      if (val !== firstPin) { err.textContent = "PIN mos kelmadi, qaytadan urinib ko'ring"; step = 1; input.value = ''; subtitle.textContent = "Bu ilova ma'lumotlarini faqat siz o'zgartira olishingiz uchun 4 xonali PIN yarating"; return; }
+      localStorage.setItem(PIN_KEY, val);
+      unlockApp();
+    };
+  } else {
+    title.textContent = "PIN kiriting";
+    subtitle.textContent = "Ma'lumotlarni himoya qilish uchun PIN kodni kiriting";
+    btn.onclick = () => {
+      const val = input.value.trim();
+      if (val === savedPin) { unlockApp(); }
+      else { err.textContent = "PIN noto'g'ri"; input.value = ''; }
+    };
+  }
 }
 
+function unlockApp() {
+  document.getElementById('lockScreen').style.display = 'none';
+  document.getElementById('mainWrap').style.display = 'block';
+  load();
+}
+
+function changePin() {
+  const oldPin = prompt("Joriy PIN kodni kiriting:");
+  const savedPin = localStorage.getItem(PIN_KEY);
+  if (oldPin !== savedPin) { alert("PIN noto'g'ri"); return; }
+  const newPin = prompt("Yangi 4 xonali PIN kodni kiriting:");
+  if (!newPin || !/^\d{4}$/.test(newPin)) { alert("PIN 4 ta raqamdan iborat bo'lishi kerak"); return; }
+  localStorage.setItem(PIN_KEY, newPin);
+  alert("PIN muvaffaqiyatli o'zgartirildi");
+}
+
+/* ---------------- LOAD / SAVE ---------------- */
 async function load() {
   try {
     const raw = localStorage.getItem(KEY);
     state = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(defaultState));
+    state.employees.forEach(e => { if (e.phone === undefined) e.phone = ""; });
   } catch (e) {
     state = JSON.parse(JSON.stringify(defaultState));
   }
@@ -187,7 +267,7 @@ function scheduleSave() {
     try {
       localStorage.setItem(KEY, JSON.stringify(state));
       note.textContent = 'Saqlandi ✓';
-      setTimeout(() => { note.textContent = "Ma'lumotlar avtomatik saqlanadi"; }, 1500);
+      setTimeout(() => { note.textContent = "Ma'lumotlar shu qurilmada avtomatik saqlanadi"; }, 1500);
     } catch (e) {
       note.textContent = 'Saqlashda xatolik yuz berdi';
     }
@@ -196,6 +276,7 @@ function scheduleSave() {
 
 function switchTab(tab) {
   activeTab = tab;
+  showSettings = false;
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   render();
 }
@@ -207,13 +288,14 @@ function changeMonth(delta) {
   render();
 }
 
-/* ---------- EMPLOYEES ---------- */
+/* ---------------- EMPLOYEES ---------------- */
 function addEmployee() {
-  state.employees.push({id: nextEmpId(), name: "", salary: 0, normDays: 26});
+  state.employees.push({id: nextEmpId(), name: "", salary: 0, normDays: 26, phone: ""});
   render();
   scheduleSave();
 }
 function delEmployee(id) {
+  if (!confirm("Bu xodimni va uning barcha ma'lumotlarini o'chirishni tasdiqlaysizmi?")) return;
   state.employees = state.employees.filter(e => e.id !== id);
   delete state.attendance[id];
   state.advances = state.advances.filter(a => a.empId !== id);
@@ -227,7 +309,7 @@ function updateEmp(id, field, value, isNumber) {
   scheduleSave();
 }
 
-/* ---------- ATTENDANCE ---------- */
+/* ---------------- ATTENDANCE ---------------- */
 function cycleStatus(empId, key) {
   if (!state.attendance[empId]) state.attendance[empId] = {};
   const cur = state.attendance[empId][key];
@@ -240,7 +322,7 @@ function cycleStatus(empId, key) {
   render();
 }
 
-/* ---------- ADVANCES ---------- */
+/* ---------------- ADVANCES ---------------- */
 function addAdvance() {
   const dateInput = document.getElementById('advDate');
   const amtInput = document.getElementById('advAmt');
@@ -259,7 +341,7 @@ function delAdvance(id) {
   render();
 }
 
-/* ---------- CALC ---------- */
+/* ---------------- CALC ---------------- */
 function empMonthStats(empId, y, m) {
   const dim = daysInMonth(y, m);
   const att = state.attendance[empId] || {};
@@ -282,10 +364,76 @@ function empMonthStats(empId, y, m) {
   return { keldi, kelmadi, dam, kunlikStavka, ishlaganSumma, advJami, qoldiq, salary };
 }
 
-/* ---------- RENDER ---------- */
+/* ---------------- SEND REPORT ---------------- */
+function reportText(emp, st) {
+  return `Salom, ${emp.name}!\n${MONTH_NAMES[curMonth-1]} ${curYear} oyi uchun tabelingiz:\n` +
+    `Ishlagan kunlar: ${st.keldi}\nOylik maosh: ${fmt(st.salary)} so'm\n` +
+    `Olingan avans: ${fmt(st.advJami)} so'm\nOxirgi qoldiq (to'lov): ${fmt(st.qoldiq)} so'm`;
+}
+function sendSms(empId) {
+  const emp = state.employees.find(e => e.id === empId);
+  const st = empMonthStats(empId, curYear, curMonth);
+  const phone = cleanPhone(emp.phone);
+  if (!phone) { alert("Avval xodimning telefon raqamini kiriting."); return; }
+  const text = encodeURIComponent(reportText(emp, st));
+  window.location.href = `sms:${phone}?body=${text}`;
+}
+function sendWhatsapp(empId) {
+  const emp = state.employees.find(e => e.id === empId);
+  const st = empMonthStats(empId, curYear, curMonth);
+  const phone = cleanPhone(emp.phone);
+  if (!phone) { alert("Avval xodimning telefon raqamini kiriting."); return; }
+  const text = encodeURIComponent(reportText(emp, st));
+  window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+}
+
+/* ---------------- EXCEL EXPORT ---------------- */
+function exportExcel() {
+  const wb = XLSX.utils.book_new();
+
+  const empData = [["Ism", "Oylik maosh", "Ish kunlari me'yori", "Telefon"]];
+  state.employees.forEach(e => empData.push([e.name, e.salary, e.normDays, e.phone || ""]));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(empData), "Xodimlar");
+
+  const dim = daysInMonth(curYear, curMonth);
+  const attHeader = ["Ism"];
+  for (let d = 1; d <= dim; d++) attHeader.push(String(d));
+  const attData = [attHeader];
+  state.employees.forEach(e => {
+    const row = [e.name];
+    const att = state.attendance[e.id] || {};
+    for (let d = 1; d <= dim; d++) {
+      const st = att[dateKey(curYear, curMonth, d)];
+      row.push(st === 'keldi' ? 'K' : st === 'kelmadi' ? 'X' : st === 'dam' ? 'D' : '');
+    }
+    attData.push(row);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(attData), "Davomat");
+
+  const advData = [["Xodim", "Sana", "Summa", "Izoh"]];
+  state.advances
+    .filter(a => a.date.startsWith(`${curYear}-${pad(curMonth)}`))
+    .forEach(a => {
+      const emp = state.employees.find(e => e.id === a.empId);
+      advData.push([emp ? emp.name : "", a.date, a.amount, a.note || ""]);
+    });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(advData), "Avanslar");
+
+  const repData = [["Ism", "Ishlagan kun", "Kelmagan kun", "Oylik maosh", "Kunlik stavka", "Ishlagan summa", "Avans", "Oxirgi qoldiq"]];
+  state.employees.forEach(e => {
+    const st = empMonthStats(e.id, curYear, curMonth);
+    repData.push([e.name, st.keldi, st.kelmadi, st.salary, Math.round(st.kunlikStavka), Math.round(st.ishlaganSumma), st.advJami, Math.round(st.qoldiq)]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(repData), "Hisobot");
+
+  XLSX.writeFile(wb, `Tabel_${MONTH_NAMES[curMonth-1]}_${curYear}.xlsx`);
+}
+
+/* ---------------- RENDER ---------------- */
 function render() {
   renderMonthBar();
   renderSummary();
+  renderSettings();
   renderContent();
   renderAddBtn();
 }
@@ -298,6 +446,16 @@ function renderMonthBar() {
       <button onclick="changeMonth(-1)">‹</button>
       <div class="mlabel">${MONTH_NAMES[curMonth-1]} ${curYear}</div>
       <button onclick="changeMonth(1)">›</button>
+    </div>`;
+}
+
+function renderSettings() {
+  const holder = document.getElementById('settingsHolder');
+  if (!showSettings) { holder.innerHTML = ''; return; }
+  holder.innerHTML = `
+    <div class="settings-panel">
+      <h3>🔒 Xavfsizlik</h3>
+      <button class="add-btn" style="margin-top:0;" onclick="changePin()">PIN kodni o'zgartirish</button>
     </div>`;
 }
 
@@ -355,6 +513,7 @@ function renderContent() {
         <div class="field-grid">
           <div class="field"><label>Oylik maosh (so'm)</label><input type="number" value="${e.salary}" onchange="updateEmp(${e.id},'salary',this.value,true)"></div>
           <div class="field"><label>Ish kunlari me'yori</label><input type="number" value="${e.normDays}" onchange="updateEmp(${e.id},'normDays',this.value,true)"></div>
+          <div class="field full"><label>Telefon raqami</label><input type="tel" placeholder="998901234567" value="${e.phone||''}" onchange="updateEmp(${e.id},'phone',this.value,false)"></div>
         </div>
       </div>`).join('');
     return;
@@ -394,18 +553,13 @@ function renderContent() {
           <input type="text" id="advNote" placeholder="Izoh (ixtiyoriy)" style="grid-column: span 2;">
         </div>
         <button class="add-btn" style="margin-bottom:14px;" onclick="addAdvance()">+ Avans qo'shish</button>`;
-      const list = state.advances
-        .filter(a => a.empId === selectedEmp)
-        .sort((a,b) => b.date.localeCompare(a.date));
+      const list = state.advances.filter(a => a.empId === selectedEmp).sort((a,b) => b.date.localeCompare(a.date));
       if (!list.length) {
         html += `<div class="empty">Hali avans yozuvi yo'q.</div>`;
       } else {
         html += list.map(a => `
           <div class="adv-row">
-            <div class="ainfo">
-              <div>${a.note || 'Avans'}</div>
-              <div class="adate">${a.date}</div>
-            </div>
+            <div class="ainfo"><div>${a.note || 'Avans'}</div><div class="adate">${a.date}</div></div>
             <div style="display:flex;align-items:center;gap:10px;">
               <div class="aamt">${fmt(a.amount)} so'm</div>
               <button class="del" onclick="delAdvance(${a.id})">✕</button>
@@ -422,25 +576,32 @@ function renderContent() {
       content.innerHTML = `<div class="empty">Hali xodim yo'q.</div>`;
       return;
     }
-    content.innerHTML = state.employees.map(e => {
-      const st = empMonthStats(e.id, curYear, curMonth);
-      return `
-        <div class="rep-card">
-          <div class="rep-name">${e.name || 'Ism kiritilmagan'}</div>
-          <div class="rep-grid">
-            <div class="rlbl">Ishlagan kunlar</div><div class="rval">${st.keldi} kun</div>
-            <div class="rlbl">Kelmagan kunlar</div><div class="rval">${st.kelmadi} kun</div>
-            <div class="rlbl">Oylik maosh</div><div class="rval">${fmt(st.salary)} so'm</div>
-            <div class="rlbl">Kunlik stavka</div><div class="rval">${fmt(st.kunlikStavka)} so'm</div>
-            <div class="rlbl">Ishlagan summa</div><div class="rval">${fmt(st.ishlaganSumma)} so'm</div>
-            <div class="rlbl">Olgan avans</div><div class="rval">${fmt(st.advJami)} so'm</div>
-          </div>
-          <div class="rep-final">
-            <div class="flbl">OXIRGI QOLDIQ (to'lanadigan)</div>
-            <div class="fval">${fmt(st.qoldiq)} so'm</div>
-          </div>
-        </div>`;
-    }).join('');
+    content.innerHTML = `<button class="solid-btn" onclick="exportExcel()">📥 Excel (.xlsx) ko'rinishida yuklab olish</button>` +
+      state.employees.map(e => {
+        const st = empMonthStats(e.id, curYear, curMonth);
+        const hasPhone = !!cleanPhone(e.phone);
+        return `
+          <div class="rep-card">
+            <div class="rep-name">${e.name || 'Ism kiritilmagan'}</div>
+            <div class="rep-phone">${e.phone ? '📞 ' + e.phone : 'Telefon raqami kiritilmagan'}</div>
+            <div class="rep-grid">
+              <div class="rlbl">Ishlagan kunlar</div><div class="rval">${st.keldi} kun</div>
+              <div class="rlbl">Kelmagan kunlar</div><div class="rval">${st.kelmadi} kun</div>
+              <div class="rlbl">Oylik maosh</div><div class="rval">${fmt(st.salary)} so'm</div>
+              <div class="rlbl">Kunlik stavka</div><div class="rval">${fmt(st.kunlikStavka)} so'm</div>
+              <div class="rlbl">Ishlagan summa</div><div class="rval">${fmt(st.ishlaganSumma)} so'm</div>
+              <div class="rlbl">Olgan avans</div><div class="rval">${fmt(st.advJami)} so'm</div>
+            </div>
+            <div class="rep-final">
+              <div class="flbl">OXIRGI QOLDIQ</div>
+              <div class="fval">${fmt(st.qoldiq)} so'm</div>
+            </div>
+            <div class="send-row">
+              <button class="send-btn sms ${hasPhone?'':'disabled'}" onclick="sendSms(${e.id})">💬 SMS yuborish</button>
+              <button class="send-btn wa ${hasPhone?'':'disabled'}" onclick="sendWhatsapp(${e.id})">🟢 WhatsApp</button>
+            </div>
+          </div>`;
+      }).join('');
   }
 }
 
@@ -455,8 +616,15 @@ function renderAddBtn() {
 }
 
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+document.getElementById('settingsBtn').addEventListener('click', () => { showSettings = !showSettings; renderSettings(); });
 
-load();
+initLock();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
