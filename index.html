@@ -1,3 +1,4 @@
+Munis_sweet's:
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -10,6 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
   :root {
     --cocoa: #3B2417;
@@ -54,7 +57,9 @@
 
   .item { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
   .item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
-  .item-top input.name { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; border: none; background: transparent; flex: 1; color: var(--cocoa); padding: 2px 0; border-bottom: 1px dashed transparent; }
+  .item-top input.name { font-f
+
+amily: 'Fraunces', serif; font-size: 16px; font-weight: 600; border: none; background: transparent; flex: 1; color: var(--cocoa); padding: 2px 0; border-bottom: 1px dashed transparent; }
   .item-top input.name:focus { outline: none; border-bottom: 1px dashed var(--gold); }
   .del { color: var(--red); font-size: 12px; font-weight: 600; cursor: pointer; padding: 4px 8px; border-radius: 7px; background: var(--red-bg); border: none; flex-shrink: 0; }
 
@@ -97,7 +102,9 @@
   .rep-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; font-size: 12.5px; }
   .rep-grid .rlbl { color: var(--cocoa-light); }
   .rep-grid .rval { font-weight: 600; text-align: right; }
-  .rep-final { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); display: flex; justify-content: space-between; align-items: center; }
+  .rep-final { margin-top: 10px; padding-top: 10px; border-top: 1px
+
+dashed var(--line); display: flex; justify-content: space-between; align-items: center; }
   .rep-final .flbl { font-size: 12.5px; font-weight: 700; color: var(--cocoa-light); }
   .rep-final .fval { font-family: 'Fraunces', serif; font-weight: 700; font-size: 17px; color: var(--raspberry-dark); }
   .send-row { display: flex; gap: 8px; margin-top: 10px; }
@@ -155,29 +162,33 @@
   <div id="settingsHolder"></div>
   <div id="content"></div>
   <div id="addBtnHolder"></div>
-  <div class="save-note" id="saveNote">Ma'lumotlar shu qurilmada avtomatik saqlanadi</div>
+  <div class="save-note" id="saveNote">Ulanmoqda...</div>
 </div>
 
 <script>
-const KEY = 'xodimlar-tabeli-data';
+const firebaseConfig = {
+  apiKey: "AIzaSyDnw0Q5EwHad7INVSghb4JCtdkrX9fDTX8",
+  authDomain: "tab-munis.firebaseapp.com",
+  databaseURL: "https://tab-munis-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "tab-munis",
+  storageBucket: "tab-munis.firebasestorage.app",
+  messagingSenderId: "261830207638",
+  appId: "1:261830207638:web:060b135796a2f7fc46bab7"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
 const PIN_KEY = 'xodimlar-tabeli-pin';
-let state = null;
+let state = { employees: {}, attendance: {}, advances: {} };
 let activeTab = 'employees';
-let saveTimer = null;
 let selectedEmp = null;
 let showSettings = false;
 const now = new Date();
 let curYear = now.getFullYear();
 let curMonth = now.getMonth() + 1;
+let firebaseReady = { employe
 
-const defaultState = {
-  employees: [
-    {id: 1, name: "Aziza Karimova", salary: 3000000, normDays: 26, phone: "998901234567"},
-    {id: 2, name: "Bekzod Yusupov", salary: 2800000, normDays: 26, phone: ""},
-  ],
-  attendance: {},
-  advances: []
-};
+es: false, attendance: false, advances: false };
 
 const WD_NAMES = ["Yak","Dush","Sesh","Chor","Pay","Juma","Shan"];
 const MONTH_NAMES = ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"];
@@ -185,10 +196,9 @@ const MONTH_NAMES = ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgus
 function fmt(n) { n = Number(n) || 0; return Math.round(n).toLocaleString('en-US').replace(/,/g, ' '); }
 function pad(n) { return String(n).padStart(2, '0'); }
 function daysInMonth(y, m) { return new Date(y, m, 0).getDate(); }
-function dateKey(y, m, d) { return `${y}-${pad(m)}-${pad(d)}`; }
-function nextEmpId() { return state.employees.reduce((mx, e) => Math.max(mx, e.id), 0) + 1; }
-function nextAdvId() { return state.advances.reduce((mx, a) => Math.max(mx, a.id), 0) + 1; }
+function dateKey(y, m, d) { return ${y}-${pad(m)}-${pad(d)}; }
 function cleanPhone(p) { return (p || '').replace(/[^0-9]/g, ''); }
+function empList() { return Object.keys(state.employees).map(id => ({ id, ...state.employees[id] })); }
 
 /* ---------------- PIN LOCK ---------------- */
 function initLock() {
@@ -233,7 +243,7 @@ function initLock() {
 function unlockApp() {
   document.getElementById('lockScreen').style.display = 'none';
   document.getElementById('mainWrap').style.display = 'block';
-  load();
+  connectFirebase();
 }
 
 function changePin() {
@@ -246,32 +256,28 @@ function changePin() {
   alert("PIN muvaffaqiyatli o'zgartirildi");
 }
 
-/* ---------------- LOAD / SAVE ---------------- */
-async function load() {
-  try {
-    const raw = localStorage.getItem(KEY);
-    state = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(defaultState));
-    state.employees.forEach(e => { if (e.phone === undefined) e.phone = ""; });
-  } catch (e) {
-    state = JSON.parse(JSON.stringify(defaultState));
-  }
-  if (state.employees.length && selectedEmp === null) selectedEmp = state.employees[0].id;
-  render();
-}
-
-function scheduleSave() {
+/* ---------------- FIREBASE SYNC ---------------- */
+function connectFirebase() {
   const note = document.getElementById('saveNote');
-  note.textContent = 'Saqlanmoqda...';
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(state));
-      note.textContent = 'Saqlandi ✓';
-      setTimeout(() => { note.textContent = "Ma'lumotlar shu qurilmada avtomatik saqlanadi"; }, 1500);
-    } catch (e) {
-      note.textContent = 'Saqlashda xatolik yuz berdi';
-    }
-  }, 400);
+  note.textContent = "Ulanmoqda...";
+
+  db.ref('employees').on('value', (snap) => {
+    state.employees = snap.val() || {};
+    if (!selectedEmp) { const ids = Object.keys(state.employees); if (ids.length) selectedEmp = ids[0]; }
+    firebaseReady.employees = true;
+    note.textContent = "Ulandi ✓ (real vaqt)";
+    render();
+  });
+  db.ref('attendance').on('value', (snap) => {
+    state.attendance = snap.val() || {};
+    firebaseReady.attendance = true;
+    render();
+  });
+  db.ref('advances').on('value', (snap) => {
+    state.advances = snap.val() || {};
+    firebaseReady.advances = true;
+    render();
+  });
 }
 
 function switchTab(tab) {
@@ -288,38 +294,35 @@ function changeMonth(delta) {
   render();
 }
 
-/* ---------------- EMPLOYEES ---------------- */
+/* ---------------- EMPLOYEES ------
+
+---------- */
 function addEmployee() {
-  state.employees.push({id: nextEmpId(), name: "", salary: 0, normDays: 26, phone: ""});
-  render();
-  scheduleSave();
+  const ref = db.ref('employees').push();
+  ref.set({ name: "", salary: 0, normDays: 26, phone: "" });
+  selectedEmp = ref.key;
 }
 function delEmployee(id) {
   if (!confirm("Bu xodimni va uning barcha ma'lumotlarini o'chirishni tasdiqlaysizmi?")) return;
-  state.employees = state.employees.filter(e => e.id !== id);
-  delete state.attendance[id];
-  state.advances = state.advances.filter(a => a.empId !== id);
-  if (selectedEmp === id) selectedEmp = state.employees.length ? state.employees[0].id : null;
-  render();
-  scheduleSave();
+  db.ref('employees/' + id).remove();
+  db.ref('attendance/' + id).remove();
+  const advToDel = Object.keys(state.advances).filter(k => state.advances[k].empId === id);
+  advToDel.forEach(k => db.ref('advances/' + k).remove());
+  if (selectedEmp === id) { const ids = Object.keys(state.employees).filter(i=>i!==id); selectedEmp = ids.length ? ids[0] : null; }
 }
 function updateEmp(id, field, value, isNumber) {
-  const emp = state.employees.find(e => e.id === id);
-  emp[field] = isNumber ? (parseFloat(value) || 0) : value;
-  scheduleSave();
+  const v = isNumber ? (parseFloat(value) || 0) : value;
+  db.ref('employees/' + id).update({ [field]: v });
 }
 
 /* ---------------- ATTENDANCE ---------------- */
 function cycleStatus(empId, key) {
-  if (!state.attendance[empId]) state.attendance[empId] = {};
-  const cur = state.attendance[empId][key];
+  const cur = (state.attendance[empId] || {})[key];
   const order = [undefined, 'keldi', 'kelmadi', 'dam'];
   const idx = order.indexOf(cur);
   const next = order[(idx + 1) % order.length];
-  if (next === undefined) delete state.attendance[empId][key];
-  else state.attendance[empId][key] = next;
-  scheduleSave();
-  render();
+  const ref = db.ref(attendance/${empId}/${key});
+  if (next === undefined) ref.remove(); else ref.set(next);
 }
 
 /* ---------------- ADVANCES ---------------- */
@@ -331,14 +334,10 @@ function addAdvance() {
   const amount = parseFloat(amtInput.value) || 0;
   const note = noteInput.value || '';
   if (!selectedEmp || amount <= 0) return;
-  state.advances.push({id: nextAdvId(), empId: selectedEmp, date, amount, note});
-  scheduleSave();
-  render();
+  db.ref('advances').push({ empId: selectedEmp, date, amount, note });
 }
 function delAdvance(id) {
-  state.advances = state.advances.filter(a => a.id !== id);
-  scheduleSave();
-  render();
+  db.ref('advances/' + id).remove();
 }
 
 /* ---------------- CALC ---------------- */
@@ -352,13 +351,13 @@ function empMonthStats(empId, y, m) {
     else if (st === 'kelmadi') kelmadi++;
     else if (st === 'dam') dam++;
   }
-  const emp = state.employees.find(e => e.id === empId);
-  const normDays = (emp && emp.normDays) || 26;
-  const salary = (emp && emp.salary) || 0;
+  const emp = state.employees[empId] || {};
+  const normDays = emp.normDays || 26;
+  const salary = emp.salary || 0;
   const kunlikStavka = normDays > 0 ? salary / normDays : 0;
   const ishlaganSumma = kunlikStavka * keldi;
-  const advJami = state.advances
-    .filter(a => a.empId === empId && a.date.startsWith(`${y}-${pad(m)}`))
+  const advJami = Object.values(state.advances)
+    .filter(a => a.empId === empId && a.date.startsWith(${y}-${pad(m)}))
     .reduce((s, a) => s + a.amount, 0);
   const qoldiq = ishlaganSumma - advJami;
   return { keldi, kelmadi, dam, kunlikStavka, ishlaganSumma, advJami, qoldiq, salary };
@@ -366,40 +365,43 @@ function empMonthStats(empId, y, m) {
 
 /* ---------------- SEND REPORT ---------------- */
 function reportText(emp, st) {
-  return `Salom, ${emp.name}!\n${MONTH_NAMES[curMonth-1]} ${curYear} oyi uchun tabelingiz:\n` +
-    `Ishlagan kunlar: ${st.keldi}\nOylik maosh: ${fmt(st.salary)} so'm\n` +
-    `Olingan avans: ${fmt(st.advJami)} so'm\nOxirgi qoldiq (to'lov): ${fmt(st.qoldiq)} so'm`;
+  return Salom, ${emp.name}!\n${MONTH_NAMES[curMonth-1]} ${curYear} oyi uchun tabelingiz:\n +
+    Ishlagan kunlar: ${st.keldi}\nOylik maosh: ${fmt(st.salary)} so'm\n +
+    Olingan avans: ${fmt(st.advJami)} so'm\nOxirgi qoldiq (to'lov): ${fmt(st.qoldiq)} so'm;
 }
 function sendSms(empId) {
-  const emp = state.employees.find(e => e.id === empId);
+  const emp = state.employees[empId];
   const st = empMonthStats(empId, curYear, curMonth);
   const phone = cleanPhone(emp.phone);
   if (!phone) { alert("Avval xodimning telefon raqamini kiriting."); return; }
   const text = encodeURIComponent(reportText(emp, st));
-  window.location.href = `sms:${phone}?body=${text}`;
+  window.location.href = sms:${phone}?body=${text};
 }
 function sendWhatsapp(empId) {
-  const emp = state.employees.find(e => e.id === empId);
+  const emp = state.employees[empId];
   const st = empMonthStats(empId, curYear, curMonth);
   const phone = cleanPhone(emp.phone);
   if (!phone) { alert("Avval xodimning telefon raqamini kiriting."); return; }
   const text = encodeURIComponent(reportText(emp, st));
-  window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+  window.open(https://wa.me/${phone}?text=${text}, '_blank');
 }
 
 /* ---------------- EXCEL EXPORT ---------------- */
 function exportExcel() {
   const wb = XLSX.utils.book_new();
+  const emps = empList();
 
   const empData = [["Ism", "Oylik maosh", "Ish kunlari me'yori", "Telefon"]];
-  state.employees.forEach(e => empData.push([e.name, e.salary, e.normDays, e.phone || ""]));
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(empData), "Xodimlar");
+  emps.forEach(e => empData.push([e.name, e.salary, e.normDays, e.phone || ""]));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils
+
+.aoa_to_sheet(empData), "Xodimlar");
 
   const dim = daysInMonth(curYear, curMonth);
   const attHeader = ["Ism"];
   for (let d = 1; d <= dim; d++) attHeader.push(String(d));
   const attData = [attHeader];
-  state.employees.forEach(e => {
+  emps.forEach(e => {
     const row = [e.name];
     const att = state.attendance[e.id] || {};
     for (let d = 1; d <= dim; d++) {
@@ -411,22 +413,22 @@ function exportExcel() {
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(attData), "Davomat");
 
   const advData = [["Xodim", "Sana", "Summa", "Izoh"]];
-  state.advances
-    .filter(a => a.date.startsWith(`${curYear}-${pad(curMonth)}`))
+  Object.values(state.advances)
+    .filter(a => a.date.startsWith(${curYear}-${pad(curMonth)}))
     .forEach(a => {
-      const emp = state.employees.find(e => e.id === a.empId);
+      const emp = state.employees[a.empId];
       advData.push([emp ? emp.name : "", a.date, a.amount, a.note || ""]);
     });
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(advData), "Avanslar");
 
   const repData = [["Ism", "Ishlagan kun", "Kelmagan kun", "Oylik maosh", "Kunlik stavka", "Ishlagan summa", "Avans", "Oxirgi qoldiq"]];
-  state.employees.forEach(e => {
+  emps.forEach(e => {
     const st = empMonthStats(e.id, curYear, curMonth);
     repData.push([e.name, st.keldi, st.kelmadi, st.salary, Math.round(st.kunlikStavka), Math.round(st.ishlaganSumma), st.advJami, Math.round(st.qoldiq)]);
   });
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(repData), "Hisobot");
 
-  XLSX.writeFile(wb, `Tabel_${MONTH_NAMES[curMonth-1]}_${curYear}.xlsx`);
+  XLSX.writeFile(wb, Tabel_${MONTH_NAMES[curMonth-1]}_${curYear}.xlsx);
 }
 
 /* ---------------- RENDER ---------------- */
@@ -441,81 +443,86 @@ function render() {
 function renderMonthBar() {
   const holder = document.getElementById('monthBarHolder');
   if (activeTab === 'employees') { holder.innerHTML = ''; return; }
-  holder.innerHTML = `
+  holder.innerHTML = 
     <div class="month-bar">
       <button onclick="changeMonth(-1)">‹</button>
       <div class="mlabel">${MONTH_NAMES[curMonth-1]} ${curYear}</div>
       <button onclick="changeMonth(1)">›</button>
-    </div>`;
+    </div>;
 }
 
 function renderSettings() {
   const holder = document.getElementById('settingsHolder');
   if (!showSettings) { holder.innerHTML = ''; return; }
-  holder.innerHTML = `
+  holder.innerHTML = 
     <div class="settings-panel">
       <h3>🔒 Xavfsizlik</h3>
       <button class="add-btn" style="margin-top:0;" onclick="changePin()">PIN kodni o'zgartirish</button>
-    </div>`;
+    </div>;
 }
 
 function renderSummary() {
   const summary = document.getElementById('summary');
+  const emps = empList();
   if (activeTab === 'employees') {
-    summary.innerHTML = `
-      <div class="card"><div class="num">${state.employees.length}</div><div class="lbl">Jami xodimlar</div></div>
-      <div class="card"><div class="num">${fmt(state.employees.reduce((s,e)=>s+(e.salary||0),0))}</div><div class="lbl">Jami oylik fond (so'm)</div></div>`;
+    summary.innerHTML = 
+      <div class="card"><div class="num">${emps.length}</div><div class="lbl">Jami xodimlar</div></div>
+      <div class="card"><div class="num">${fmt(emps.reduce((s,e)=>s+(e.salary||0),0))}</div><div class="lbl">Jami oylik fond (so'm)</div></div>;
   } else if (activeTab === 'attendance') {
     if (!selectedEmp) { summary.innerHTML = ''; return; }
     const st = empMonthStats(selectedEmp, curYear, curMonth);
-    summary.innerHTML = `
+    summary.innerHTML = 
       <div class="card"><div class="num">${st.keldi}</div><div class="lbl">Keldi</div></div>
       <div class="card"><div class="num">${st.kelmadi}</div><div class="lbl">Kelmadi</div></div>
-      <div class="card"><div class="num">${st.dam}</div><div class="lbl">Dam olish</div></div>`;
+      <div class="card"><div class="num">${st.dam}</div><div class="lbl">Dam olish</div></div>;
   } else if (activeTab === 'advances') {
     if (!selectedEmp) { summary.innerHTML = ''; return; }
     const st = empMonthStats(selectedEmp, curYear, curMonth);
-    summary.innerHTML = `
+    summary.innerHTML = 
       <div class="card"><div class="num">${fmt(st.advJami)}</div><div class="lbl">Shu oy avans (so'm)</div></div>
-      <div class="card"><div class="num">${fmt(st.qoldiq)}</div><div class="lbl">Joriy qoldiq (so'm)</div></div>`;
+      <div class="card"><div class="num">${fmt(st.qoldiq)}</div><div class="lbl">Joriy qoldiq (so'm)</div></div>;
   } else if (activeTab === 'report') {
-    const totalPay = state.employees.reduce((s,e)=> s + empMonthStats(e.id, curYear, curMonth).ishlaganSumma, 0);
-    const totalAdv = state.employees.reduce((s,e)=> s + empMonthStats(e.id, curYear, curMonth).advJami, 0);
+    const totalPay = emps.reduce((s,e)=> s + empMonthStats(e.id, curYear, curMonth).ishlaganSumma, 0);
+    const totalAdv = emps.reduce((s,e)=> s + empMonthStats(e.id, curYear, curMonth).advJami, 0);
     const totalLeft = totalPay - totalAdv;
     summary.innerHTML = `
-      <div class="card"><div class="num">${fmt(totalPay)}</div><div class="lbl">Jami ishlangan (so'm)</div></div>
+      <div class="card"><div class="num">${fmt(totalPa
+
+y)}</div><div class="lbl">Jami ishlangan (so'm)</div></div>
       <div class="card"><div class="num">${fmt(totalAdv)}</div><div class="lbl">Jami avans (so'm)</div></div>
-      <div class="card"><div class="num">${fmt(totalLeft)}</div><div class="lbl">Jami to'lanadigan (so'm)</div></div>`;
+      <div class="card"><div class="num">${fmt(totalLeft)}</div><div class="lbl">Jami to'lanadigan (so'm)</div></div>;
   }
 }
 
 function empSelectHtml() {
-  if (!state.employees.length) return `<div class="empty">Avval "Xodimlar" bo'limida xodim qo'shing.</div>`;
-  return `<select class="emp-select" onchange="selectedEmp = parseInt(this.value); render();">
-    ${state.employees.map(e => `<option value="${e.id}" ${e.id===selectedEmp?'selected':''}>${e.name || 'Ism kiritilmagan'}</option>`).join('')}
-  </select>`;
+  const emps = empList();
+  if (!emps.length) return <div class="empty">Avval "Xodimlar" bo'limida xodim qo'shing.</div>;
+  return <select class="emp-select" onchange="selectedEmp = this.value; render();">
+    ${emps.map(e => <option value="${e.id}" ${e.id===selectedEmp?'selected':''}>${e.name || 'Ism kiritilmagan'}</option>).join('')}
+  </select>;
 }
 
 function renderContent() {
   const content = document.getElementById('content');
+  const emps = empList();
 
   if (activeTab === 'employees') {
-    if (!state.employees.length) {
-      content.innerHTML = `<div class="empty">Hali xodim yo'q.<br>"+ Yangi xodim" tugmasini bosing.</div>`;
+    if (!emps.length) {
+      content.innerHTML = <div class="empty">Hali xodim yo'q.<br>"+ Yangi xodim" tugmasini bosing.</div>;
       return;
     }
-    content.innerHTML = state.employees.map(e => `
+    content.innerHTML = emps.map(e => 
       <div class="item">
         <div class="item-top">
-          <input class="name" placeholder="Ism familiya" value="${e.name}" onchange="updateEmp(${e.id},'name',this.value,false)">
-          <button class="del" onclick="delEmployee(${e.id})">O'chirish</button>
+          <input class="name" placeholder="Ism familiya" value="${e.name}" onchange="updateEmp('${e.id}','name',this.value,false)">
+          <button class="del" onclick="delEmployee('${e.id}')">O'chirish</button>
         </div>
         <div class="field-grid">
-          <div class="field"><label>Oylik maosh (so'm)</label><input type="number" value="${e.salary}" onchange="updateEmp(${e.id},'salary',this.value,true)"></div>
-          <div class="field"><label>Ish kunlari me'yori</label><input type="number" value="${e.normDays}" onchange="updateEmp(${e.id},'normDays',this.value,true)"></div>
-          <div class="field full"><label>Telefon raqami</label><input type="tel" placeholder="998901234567" value="${e.phone||''}" onchange="updateEmp(${e.id},'phone',this.value,false)"></div>
+          <div class="field"><label>Oylik maosh (so'm)</label><input type="number" value="${e.salary}" onchange="updateEmp('${e.id}','salary',this.value,true)"></div>
+          <div class="field"><label>Ish kunlari me'yori</label><input type="number" value="${e.normDays}" onchange="updateEmp('${e.id}','normDays',this.value,true)"></div>
+          <div class="field full"><label>Telefon raqami</label><input type="tel" placeholder="998901234567" value="${e.phone||''}" onchange="updateEmp('${e.id}','phone',this.value,false)"></div>
         </div>
-      </div>`).join('');
+      </div>).join('');
     return;
   }
 
@@ -532,10 +539,10 @@ function renderContent() {
         const isWeekend = wd === 0 || wd === 6;
         const cls = st || 'none';
         const label = st === 'keldi' ? 'Keldi' : st === 'kelmadi' ? 'Kelmadi' : st === 'dam' ? 'Dam olish' : "Belgilanmagan";
-        html += `<div class="day-row ${isWeekend ? 'weekend' : ''}">
+        html += <div class="day-row ${isWeekend ? 'weekend' : ''}">
           <div class="dinfo">${d}-kun <span class="wd">${WD_NAMES[wd]}</span></div>
-          <button class="status-btn ${cls}" onclick="cycleStatus(${selectedEmp}, '${key}')">${label}</button>
-        </div>`;
+          <button class="status-btn ${cls}" onclick="cycleStatus('${selectedEmp}', '${key}')">${label}</button>
+        </div>;
       }
       html += '</div>';
     }
@@ -546,25 +553,30 @@ function renderContent() {
   if (activeTab === 'advances') {
     let html = empSelectHtml();
     if (selectedEmp) {
-      html += `
+      html += 
         <div class="adv-form">
           <input type="date" id="advDate" value="${dateKey(curYear, curMonth, Math.min(now.getDate(), daysInMonth(curYear,curMonth)))}">
           <input type="number" id="advAmt" placeholder="Summa (so'm)">
           <input type="text" id="advNote" placeholder="Izoh (ixtiyoriy)" style="grid-column: span 2;">
         </div>
-        <button class="add-btn" style="margin-bottom:14px;" onclick="addAdvance()">+ Avans qo'shish</button>`;
-      const list = state.advances.filter(a => a.empId === selectedEmp).sort((a,b) => b.date.localeCompare(a.date));
+        <button class="add-btn" style="margin-bottom:14px;" onclick="addAdvance()">+ Avans qo'shish</button>;
+      const list = Object.keys(state.advances)
+        .map(k => ({ id: k, ...state.advances[k] }))
+        .filter(a => a.empId === selectedEmp)
+        .sort((a,b) => b.date.localeCompare(a.date));
       if (!list.length) {
-        html += `<div class="empty">Hali avans yozuvi yo'q.</div>`;
+        html += <div class="empty">Hali avans yozuvi yo'q.</div>;
       } else {
-        html += list.map(a => `
+        html += list.map(a => 
           <div class="adv-row">
             <div class="ainfo"><div>${a.note || 'Avans'}</div><div class="adate">${a.date}</div></div>
             <div style="display:flex;align-items:center;gap:10px;">
               <div class="aamt">${fmt(a.amount)} so'm</div>
-              <button class="del" onclick="delAdvance(${a.id})">✕</button>
+              <b
+
+utton class="del" onclick="delAdvance('${a.id}')">✕</button>
             </div>
-          </div>`).join('');
+          </div>).join('');
       }
     }
     content.innerHTML = html;
@@ -572,15 +584,15 @@ function renderContent() {
   }
 
   if (activeTab === 'report') {
-    if (!state.employees.length) {
-      content.innerHTML = `<div class="empty">Hali xodim yo'q.</div>`;
+    if (!emps.length) {
+      content.innerHTML = <div class="empty">Hali xodim yo'q.</div>;
       return;
     }
-    content.innerHTML = `<button class="solid-btn" onclick="exportExcel()">📥 Excel (.xlsx) ko'rinishida yuklab olish</button>` +
-      state.employees.map(e => {
+    content.innerHTML = <button class="solid-btn" onclick="exportExcel()">📥 Excel (.xlsx) ko'rinishida yuklab olish</button> +
+      emps.map(e => {
         const st = empMonthStats(e.id, curYear, curMonth);
         const hasPhone = !!cleanPhone(e.phone);
-        return `
+        return 
           <div class="rep-card">
             <div class="rep-name">${e.name || 'Ism kiritilmagan'}</div>
             <div class="rep-phone">${e.phone ? '📞 ' + e.phone : 'Telefon raqami kiritilmagan'}</div>
@@ -597,10 +609,10 @@ function renderContent() {
               <div class="fval">${fmt(st.qoldiq)} so'm</div>
             </div>
             <div class="send-row">
-              <button class="send-btn sms ${hasPhone?'':'disabled'}" onclick="sendSms(${e.id})">💬 SMS yuborish</button>
-              <button class="send-btn wa ${hasPhone?'':'disabled'}" onclick="sendWhatsapp(${e.id})">🟢 WhatsApp</button>
+              <button class="send-btn sms ${hasPhone?'':'disabled'}" onclick="sendSms('${e.id}')">💬 SMS yuborish</button>
+              <button class="send-btn wa ${hasPhone?'':'disabled'}" onclick="sendWhatsapp('${e.id}')">🟢 WhatsApp</button>
             </div>
-          </div>`;
+          </div>;
       }).join('');
   }
 }
@@ -608,7 +620,7 @@ function renderContent() {
 function renderAddBtn() {
   const holder = document.getElementById('addBtnHolder');
   if (activeTab === 'employees') {
-    holder.innerHTML = `<button class="add-btn" id="addBtn">+ Yangi xodim</button>`;
+    holder.innerHTML = <button class="add-btn" id="addBtn">+ Yangi xodim</button>`;
     document.getElementById('addBtn').addEventListener('click', addEmployee);
   } else {
     holder.innerHTML = '';
