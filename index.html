@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+[07.09.2026 13:24] Munis_sweet's: <!DOCTYPE html>
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
@@ -49,8 +49,7 @@
   .item { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
   .item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
   .item-top input.name { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; border: none; background: transparent; flex: 1; color: var(--cocoa); padding: 2px 0; border-bottom: 1px dashed transparent; }
-
-.item-top input.name:focus { outline: none; border-bottom: 1px dashed var(--gold); }
+[07.09.2026 13:24] Munis_sweet's: .item-top input.name:focus { outline: none; border-bottom: 1px dashed var(--gold); }
   .del { color: var(--red); font-size: 12px; font-weight: 600; cursor: pointer; padding: 4px 8px; border-radius: 7px; background: var(--red-bg); border: none; flex-shrink: 0; }
   .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .field { display: flex; flex-direction: column; gap: 3px; }
@@ -89,8 +88,7 @@
   .rep-final { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); display: flex; justify-content: space-between; align-items: center; }
   .rep-final .flbl { font-size: 12.5px; font-weight: 700; color: var(--cocoa-light); }
   .rep-final .fval
-
-{ font-family: 'Fraunces', serif; font-weight: 700; font-size: 17px; color: var(--raspberry-dark); }
+[07.09.2026 13:24] Munis_sweet's: { font-family: 'Fraunces', serif; font-weight: 700; font-size: 17px; color: var(--raspberry-dark); }
   .send-row { display: flex; gap: 8px; margin-top: 10px; }
   .send-btn { flex: 1; border: none; border-radius: 9px; padding: 9px 6px; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; text-align: center; display: block; }
   .send-btn.sms { background: var(--cream-2); color: var(--cocoa); }
@@ -165,8 +163,7 @@ const MONTH_NAMES = ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgus
 function fmt(n) { n = Number(n) || 0; return Math.round(n).toLocaleString('en-US').replace(/,/g, ' '); }
 function pad(n) { return String(n).padStart(2, '0'); }
 function daysInMonth(y, m) { return new Date(y, m, 0).
-
-getDate(); }
+[07.09.2026 13:24] Munis_sweet's: getDate(); }
 function dateKey(y, m, d) { return ${y}-${pad(m)}-${pad(d)}; }
 function nextEmpId() { return state.employees.reduce((mx, e) => Math.max(mx, e.id), 0) + 1; }
 function nextAdvId() { return state.advances.reduce((mx, a) => Math.max(mx, a.id), 0) + 1; }
@@ -268,8 +265,7 @@ function delEmployee(id) {
   if (!confirm("Bu xodimni va uning barcha ma'lumotlarini o'chirishni tasdiqlaysizmi?")) return;
   state.employees = state.employees.filter(e => e.id !== id);
   delet
-
-e state.attendance[id];
+[07.09.2026 13:24] Munis_sweet's: e state.attendance[id];
   state.advances = state.advances.filter(a => a.empId !== id);
   if (selectedEmp === id) selectedEmp = state.employees.length ? state.employees[0].id : null;
   render();
@@ -365,8 +361,7 @@ function exportExcel() {
     for (let d = 1; d <= dim; d++) {
       const st = att[dateKey(curYear, curMonth, d)];
       row.push(st === 'keldi' ? 'K' : st === 'kelmadi' ? 'X' : s
-
-t === 'dam' ? 'D' : '');
+[07.09.2026 13:24] Munis_sweet's: t === 'dam' ? 'D' : '');
     }
     attData.push(row);
   });
@@ -426,8 +421,7 @@ function renderSummary() {
 function empSelectHtml() {
   if (!state.employees.length) return <div class="empty">Avval "Xodimlar" bo'limida xodim qo'shing.</div>;
   return <select class="emp-select" onchange="selectedEmp = parseInt(this.value); render();">${state.employees.map(e => <option value="${e.id}" ${e.id===selectedEmp
-
-?'selected':''}>${e.name || 'Ism kiritilmagan'}</option>).join('')}</select>;
+[07.09.2026 13:24] Munis_sweet's: ?'selected':''}>${e.name || 'Ism kiritilmagan'}</option>).join('')}</select>;
 }
 function renderContent() {
   const content = document.getElementById('content');
@@ -482,8 +476,7 @@ function renderContent() {
       const st = empMonthStats(e.id, curYear, curMonth);
       const hasPhone = !!cleanPhone(e.phone);
       return `<div class="rep-card"><div class="rep-name">${e.name || 'Ism kiritilmagan'}</div><div class="rep-phone">${e.phone ? '📞 ' + e.phone : 'Telefon raqami kiritilmagan'}</div><div class="rep-grid"><div class="rlbl">Ishlagan kunlar</div><div class="rval">${st.keldi} kun</div><div class="rlbl">Kelmagan kunlar</div><div class="rval">${st.kelmadi} kun</div><div class="rlbl">Oylik maosh</div><div cla
-
-ss="rval">${fmt(st.salary)} so'm</div><div class="rlbl">Kunlik stavka</div><div class="rval">${fmt(st.kunlikStavka)} so'm</div><div class="rlbl">Ishlagan summa</div><div class="rval">${fmt(st.ishlaganSumma)} so'm</div><div class="rlbl">Olgan avans</div><div class="rval">${fmt(st.advJami)} so'm</div></div><div class="rep-final"><div class="flbl">OXIRGI QOLDIQ</div><div class="fval">${fmt(st.qoldiq)} so'm</div></div><div class="send-row"><button class="send-btn sms ${hasPhone?'':'disabled'}" onclick="sendSms(${e.id})">💬 SMS yuborish</button><button class="send-btn wa ${hasPhone?'':'disabled'}" onclick="sendWhatsapp(${e.id})">🟢 WhatsApp</button></div></div>;
+[07.09.2026 13:24] Munis_sweet's: ss="rval">${fmt(st.salary)} so'm</div><div class="rlbl">Kunlik stavka</div><div class="rval">${fmt(st.kunlikStavka)} so'm</div><div class="rlbl">Ishlagan summa</div><div class="rval">${fmt(st.ishlaganSumma)} so'm</div><div class="rlbl">Olgan avans</div><div class="rval">${fmt(st.advJami)} so'm</div></div><div class="rep-final"><div class="flbl">OXIRGI QOLDIQ</div><div class="fval">${fmt(st.qoldiq)} so'm</div></div><div class="send-row"><button class="send-btn sms ${hasPhone?'':'disabled'}" onclick="sendSms(${e.id})">💬 SMS yuborish</button><button class="send-btn wa ${hasPhone?'':'disabled'}" onclick="sendWhatsapp(${e.id})">🟢 WhatsApp</button></div></div>;
     }).join('');
   }
 }
