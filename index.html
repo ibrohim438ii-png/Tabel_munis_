@@ -181,7 +181,7 @@ function normAtt(v) {
     if (v === 'keldi') return { s: 'keldi', h: FULL_DAY_HOURS };
     return { s: v, h: 0 };
   }
-  return { s: v.s, h: (v.h !== undefined ? v.h : (v.s === 'keldi' ? FULL_DAY_HOURS : 0)) };
+  return { s: v.s, h: (v.h !== undefined ? v.h : (v.s === 'keldi' ? FULL_DAY_HOURS : 0)), arr: v.arr, dep: v.dep };
 }
 
 function initLock() {
@@ -463,9 +463,11 @@ function renderContent() {
         const hoursField = (a && a.s === 'keldi')
           ? `<input class="hours-input" type="number" step="0.5" min="0" max="24" value="${a.h}" onchange="updateHours('${selectedEmp}','${key}',this.value)"><span class="hours-lbl">soat</span>`
           : '';
+        const timeInfo = (a && a.arr) ? `<span class="hours-lbl">${a.arr}${a.dep ? '–'+a.dep : '–...'}</span>` : '';
         html += `<div class="day-row ${isWeekend ? 'weekend' : ''}">
           <div class="dinfo">${d}-kun <span class="wd">${WD_NAMES[wd]}</span></div>
           <div class="right">
+            ${timeInfo}
             <button class="status-btn ${cls}" onclick="cycleStatus('${selectedEmp}', '${key}')">${label}</button>
             ${hoursField}
           </div>
