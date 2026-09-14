@@ -14,77 +14,59 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
   :root {
-    --cocoa: #3B2417;
-    --cocoa-light: #6B4A34;
-    --cream: #FBF4E8;
-    --cream-2: #F3E8D6;
-    --raspberry: #B23A5C;
-    --raspberry-dark: #8E2C48;
-    --gold: #C79A3D;
-    --green: #4C7A55;
-    --green-bg: #E4F0E4;
-    --red: #B14C3B;
-    --red-bg: #FBEAE6;
-    --gray-bg: #E9E4DC;
-    --gray-text: #7A6E5F;
-    --line: #E4D6BE;
-    --shadow: 0 2px 10px rgba(59,36,23,0.08);
+    --cocoa: #3B2417; --cocoa-light: #6B4A34; --cream: #FBF4E8; --cream-2: #F3E8D6;
+    --raspberry: #B23A5C; --raspberry-dark: #8E2C48; --gold: #C79A3D;
+    --green: #4C7A55; --green-bg: #E4F0E4; --red: #B14C3B; --red-bg: #FBEAE6;
+    --gray-bg: #E9E4DC; --gray-text: #7A6E5F; --line: #E4D6BE; --shadow: 0 2px 10px rgba(59,36,23,0.08);
   }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: 'Inter', sans-serif; background: var(--cream); color: var(--cocoa); -webkit-tap-highlight-color: transparent; }
   .wrap { max-width: 640px; margin: 0 auto; padding: 18px 14px 60px; display: none; }
-
   header { padding: 6px 2px 16px; border-bottom: 2px solid var(--line); margin-bottom: 14px; position: relative; display: flex; align-items: flex-start; justify-content: space-between; }
   header .eyebrow { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--raspberry); font-weight: 600; margin-bottom: 4px; }
   header h1 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 26px; margin: 0; line-height: 1.15; }
   header .sig { width: 42px; height: 42px; border-radius: 50%; background: radial-gradient(circle at 32% 28%, var(--gold), var(--raspberry) 70%); box-shadow: var(--shadow); flex-shrink: 0; cursor: pointer; }
-
   .tabs { display: flex; gap: 5px; margin-bottom: 14px; background: var(--cream-2); padding: 4px; border-radius: 12px; overflow-x: auto; }
   .tab { flex: 1; text-align: center; padding: 9px 3px; border-radius: 9px; font-size: 12px; font-weight: 600; color: var(--cocoa-light); cursor: pointer; user-select: none; white-space: nowrap; transition: background .15s, color .15s; }
   .tab.active { background: var(--cocoa); color: var(--cream); }
-
   .month-bar { display: flex; align-items: center; justify-content: space-between; background: white; border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; margin-bottom: 14px; box-shadow: var(--shadow); }
   .month-bar button { border: none; background: var(--cream-2); color: var(--cocoa); width: 30px; height: 30px; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; }
   .month-bar .mlabel { font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px; text-transform: capitalize; }
-
   .summary { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
   .summary .card { flex: 1; min-width: 90px; background: white; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; box-shadow: var(--shadow); }
   .summary .card .num { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; color: var(--raspberry-dark); }
   .summary .card .lbl { font-size: 10px; color: var(--cocoa-light); margin-top: 2px; }
-
   select.emp-select { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 600; background: white; color: var(--cocoa); margin-bottom: 12px; font-family: 'Inter', sans-serif; }
-
   .item { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
   .item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
   .item-top input.name { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; border: none; background: transparent; flex: 1; color: var(--cocoa); padding: 2px 0; border-bottom: 1px dashed transparent; }
   .item-top input.name:focus { outline: none; border-bottom: 1px dashed var(--gold); }
   .del { color: var(--red); font-size: 12px; font-weight: 600; cursor: pointer; padding: 4px 8px; border-radius: 7px; background: var(--red-bg); border: none; flex-shrink: 0; }
-
   .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .field { display: flex; flex-direction: column; gap: 3px; }
   .field.full { grid-column: span 2; }
   .field label { font-size: 10px; color: var(--cocoa-light); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
   .field input { border: 1px solid var(--line); border-radius: 8px; padding: 7px 8px; font-size: 13.5px; font-family: 'Inter', sans-serif; background: var(--cream-2); color: var(--cocoa); width: 100%; }
   .field input:focus { outline: none; border-color: var(--gold); background: white; }
-
   .add-btn { width: 100%; padding: 13px; border-radius: 12px; border: 2px dashed var(--raspberry); background: transparent; color: var(--raspberry-dark); font-weight: 700; font-size: 14px; font-family: 'Inter', sans-serif; cursor: pointer; margin-top: 4px; }
   .add-btn:active { background: var(--cream-2); }
   .solid-btn { width: 100%; padding: 13px; border-radius: 12px; border: none; background: var(--cocoa); color: var(--cream); font-weight: 700; font-size: 14px; font-family: 'Inter', sans-serif; cursor: pointer; margin-bottom: 14px; }
   .solid-btn:active { opacity: .85; }
-
   .save-note { text-align: center; font-size: 11px; color: var(--cocoa-light); margin-top: 14px; opacity: .75; }
   .empty { text-align: center; padding: 40px 12px; color: var(--cocoa-light); font-size: 13.5px; }
-
-  .day-row { display: flex; align-items: center; justify-content: space-between; background: white; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; }
-  .day-row .dinfo { font-size: 13px; font-weight: 600; }
+  .day-row { display: flex; align-items: center; justify-content: space-between; background: white; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; gap: 8px; flex-wrap: wrap; }
+  .day-row .dinfo { font-size: 13px; font-weight: 600; flex-shrink: 0; }
   .day-row .dinfo .wd { font-size: 10.5px; color: var(--cocoa-light); font-weight: 500; margin-left: 5px; }
   .day-row.weekend { background: var(--cream-2); }
+  .day-row .right { display: flex; align-items: center; gap: 6px; margin-left: auto; }
   .status-btn { border: none; padding: 6px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 700; cursor: pointer; min-width: 78px; text-align: center; }
   .status-btn.keldi { background: var(--green-bg); color: var(--green); }
   .status-btn.kelmadi { background: var(--red-bg); color: var(--red); }
   .status-btn.dam { background: var(--gray-bg); color: var(--gray-text); }
   .status-btn.none { background: #F5F0E6; color: #B8AC98; border: 1px dashed #D8CBB0; }
-
+  .hours-input { width: 54px; border: 1px solid var(--line); border-radius: 8px; padding: 5px 4px; font-size: 12.5px; text-align: center; background: var(--cream-2); font-family: 'Inter', sans-serif; }
+  .hours-input:focus { outline: none; border-color: var(--gold); background: white; }
+  .hours-lbl { font-size: 10px; color: var(--cocoa-light); }
   .adv-row { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 6px; }
   .adv-row .ainfo { font-size: 13px; }
   .adv-row .ainfo .adate { color: var(--cocoa-light); font-size: 11px; }
@@ -92,7 +74,6 @@
   .adv-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
   .adv-form input { border: 1px solid var(--line); border-radius: 8px; padding: 8px 9px; font-size: 13px; background: var(--cream-2); font-family: 'Inter', sans-serif; }
   .adv-form input:focus { outline: none; border-color: var(--gold); background: white; }
-
   .rep-card { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
   .rep-name { font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px; margin-bottom: 2px; }
   .rep-phone { font-size: 11.5px; color: var(--cocoa-light); margin-bottom: 8px; }
@@ -107,8 +88,6 @@
   .send-btn.sms { background: var(--cream-2); color: var(--cocoa); }
   .send-btn.wa { background: #E4F0E4; color: var(--green); }
   .send-btn.disabled { opacity: .4; pointer-events: none; }
-
-  /* Lock screen */
   #lockScreen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
   .lock-card { background: white; border: 1px solid var(--line); border-radius: 18px; padding: 28px 22px; box-shadow: var(--shadow); max-width: 340px; width: 100%; text-align: center; }
   .lock-card .sig-lg { width: 54px; height: 54px; border-radius: 50%; background: radial-gradient(circle at 32% 28%, var(--gold), var(--raspberry) 70%); margin: 0 auto 14px; }
@@ -117,14 +96,12 @@
   .pin-input { width: 100%; text-align: center; letter-spacing: 10px; font-size: 22px; font-family: 'Fraunces', serif; border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--cream-2); margin-bottom: 10px; }
   .pin-input:focus { outline: none; border-color: var(--gold); background: white; }
   .lock-err { color: var(--red); font-size: 12px; font-weight: 600; margin-bottom: 8px; min-height: 16px; }
-
   .settings-panel { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow); }
   .settings-panel h3 { font-family: 'Fraunces', serif; font-size: 15px; margin: 0 0 10px; }
   .settings-panel .field { margin-bottom: 8px; }
 </style>
 </head>
 <body>
-
 <div id="lockScreen">
   <div class="lock-card">
     <div class="sig-lg"></div>
@@ -135,7 +112,6 @@
     <button class="solid-btn" id="pinBtn" style="margin-bottom:0;">Kirish</button>
   </div>
 </div>
-
 <div class="wrap" id="mainWrap">
   <header>
     <div>
@@ -144,14 +120,12 @@
     </div>
     <div class="sig" id="settingsBtn" title="PIN sozlamalari"></div>
   </header>
-
   <div class="tabs">
     <div class="tab active" data-tab="employees">Xodimlar</div>
     <div class="tab" data-tab="attendance">Davomat</div>
     <div class="tab" data-tab="advances">Avanslar</div>
     <div class="tab" data-tab="report">Hisobot</div>
   </div>
-
   <div id="monthBarHolder"></div>
   <div id="summary" class="summary"></div>
   <div id="settingsHolder"></div>
@@ -159,7 +133,6 @@
   <div id="addBtnHolder"></div>
   <div class="save-note" id="saveNote">Ulanmoqda...</div>
 </div>
-
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyDnw0Q5EwHad7INVSghb4JCtdkrX9fDTX8",
@@ -170,9 +143,18 @@ const firebaseConfig = {
   messagingSenderId: "261830207638",
   appId: "1:261830207638:web:060b135796a2f7fc46bab7"
 };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+let db = null;
+function ensureFirebase() {
+  if (db) return true;
+  try {
+    if (typeof firebase === 'undefined') throw new Error('Firebase SDK yuklanmadi');
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+    return true;
+  } catch (e) { console.error(e); return false; }
+}
 
+const FULL_DAY_HOURS = 10;
 const PIN_KEY = 'xodimlar-tabeli-pin';
 let state = { employees: {}, attendance: {}, advances: {} };
 let activeTab = 'employees';
@@ -181,7 +163,6 @@ let showSettings = false;
 const now = new Date();
 let curYear = now.getFullYear();
 let curMonth = now.getMonth() + 1;
-let firebaseReady = { employees: false, attendance: false, advances: false };
 
 const WD_NAMES = ["Yak","Dush","Sesh","Chor","Pay","Juma","Shan"];
 const MONTH_NAMES = ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"];
@@ -193,7 +174,16 @@ function dateKey(y, m, d) { return `${y}-${pad(m)}-${pad(d)}`; }
 function cleanPhone(p) { return (p || '').replace(/[^0-9]/g, ''); }
 function empList() { return Object.keys(state.employees).map(id => ({ id, ...state.employees[id] })); }
 
-/* ---------------- PIN LOCK ---------------- */
+// Normalize an attendance entry: supports old plain-string format and new {s,h} object format
+function normAtt(v) {
+  if (v === undefined || v === null) return null;
+  if (typeof v === 'string') {
+    if (v === 'keldi') return { s: 'keldi', h: FULL_DAY_HOURS };
+    return { s: v, h: 0 };
+  }
+  return { s: v.s, h: (v.h !== undefined ? v.h : (v.s === 'keldi' ? FULL_DAY_HOURS : 0)) };
+}
+
 function initLock() {
   const savedPin = localStorage.getItem(PIN_KEY);
   const title = document.getElementById('lockTitle');
@@ -201,23 +191,14 @@ function initLock() {
   const input = document.getElementById('pinInput');
   const err = document.getElementById('lockErr');
   const btn = document.getElementById('pinBtn');
-
   if (!savedPin) {
     title.textContent = "PIN o'rnating";
     subtitle.textContent = "Bu ilova ma'lumotlarini faqat siz o'zgartira olishingiz uchun 4 xonali PIN yarating";
-    let step = 1;
-    let firstPin = '';
+    let step = 1, firstPin = '';
     btn.onclick = () => {
       const val = input.value.trim();
       if (val.length !== 4 || !/^\d{4}$/.test(val)) { err.textContent = "4 ta raqam kiriting"; return; }
-      if (step === 1) {
-        firstPin = val;
-        step = 2;
-        input.value = '';
-        err.textContent = '';
-        subtitle.textContent = "PIN kodni tasdiqlash uchun qayta kiriting";
-        return;
-      }
+      if (step === 1) { firstPin = val; step = 2; input.value = ''; err.textContent = ''; subtitle.textContent = "PIN kodni tasdiqlash uchun qayta kiriting"; return; }
       if (val !== firstPin) { err.textContent = "PIN mos kelmadi, qaytadan urinib ko'ring"; step = 1; input.value = ''; subtitle.textContent = "Bu ilova ma'lumotlarini faqat siz o'zgartira olishingiz uchun 4 xonali PIN yarating"; return; }
       localStorage.setItem(PIN_KEY, val);
       unlockApp();
@@ -227,18 +208,15 @@ function initLock() {
     subtitle.textContent = "Ma'lumotlarni himoya qilish uchun PIN kodni kiriting";
     btn.onclick = () => {
       const val = input.value.trim();
-      if (val === savedPin) { unlockApp(); }
-      else { err.textContent = "PIN noto'g'ri"; input.value = ''; }
+      if (val === savedPin) { unlockApp(); } else { err.textContent = "PIN noto'g'ri"; input.value = ''; }
     };
   }
 }
-
 function unlockApp() {
   document.getElementById('lockScreen').style.display = 'none';
   document.getElementById('mainWrap').style.display = 'block';
   connectFirebase();
 }
-
 function changePin() {
   const oldPin = prompt("Joriy PIN kodni kiriting:");
   const savedPin = localStorage.getItem(PIN_KEY);
@@ -249,37 +227,29 @@ function changePin() {
   alert("PIN muvaffaqiyatli o'zgartirildi");
 }
 
-/* ---------------- FIREBASE SYNC ---------------- */
 function connectFirebase() {
   const note = document.getElementById('saveNote');
   note.textContent = "Ulanmoqda...";
-
+  if (!ensureFirebase()) {
+    note.textContent = "❌ Internetga ulanish yo'q yoki Firebase yuklanmadi.";
+    note.style.color = '#B14C3B';
+    return;
+  }
   db.ref('employees').on('value', (snap) => {
     state.employees = snap.val() || {};
     if (!selectedEmp) { const ids = Object.keys(state.employees); if (ids.length) selectedEmp = ids[0]; }
-    firebaseReady.employees = true;
     note.textContent = "Ulandi ✓ (real vaqt)";
     render();
   });
-  db.ref('attendance').on('value', (snap) => {
-    state.attendance = snap.val() || {};
-    firebaseReady.attendance = true;
-    render();
-  });
-  db.ref('advances').on('value', (snap) => {
-    state.advances = snap.val() || {};
-    firebaseReady.advances = true;
-    render();
-  });
+  db.ref('attendance').on('value', (snap) => { state.attendance = snap.val() || {}; render(); });
+  db.ref('advances').on('value', (snap) => { state.advances = snap.val() || {}; render(); });
 }
 
 function switchTab(tab) {
-  activeTab = tab;
-  showSettings = false;
+  activeTab = tab; showSettings = false;
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   render();
 }
-
 function changeMonth(delta) {
   curMonth += delta;
   if (curMonth > 12) { curMonth = 1; curYear++; }
@@ -287,7 +257,6 @@ function changeMonth(delta) {
   render();
 }
 
-/* ---------------- EMPLOYEES ---------------- */
 function addEmployee() {
   const ref = db.ref('employees').push();
   ref.set({ name: "", salary: 0, normDays: 26, phone: "" });
@@ -306,17 +275,23 @@ function updateEmp(id, field, value, isNumber) {
   db.ref('employees/' + id).update({ [field]: v });
 }
 
-/* ---------------- ATTENDANCE ---------------- */
 function cycleStatus(empId, key) {
-  const cur = (state.attendance[empId] || {})[key];
-  const order = [undefined, 'keldi', 'kelmadi', 'dam'];
-  const idx = order.indexOf(cur);
-  const next = order[(idx + 1) % order.length];
+  const cur = normAtt((state.attendance[empId] || {})[key]);
+  const order = [null, 'keldi', 'kelmadi', 'dam'];
+  const idx = order.indexOf(cur ? cur.s : null);
+  const nextS = order[(idx + 1) % order.length];
   const ref = db.ref(`attendance/${empId}/${key}`);
-  if (next === undefined) ref.remove(); else ref.set(next);
+  if (nextS === null) { ref.remove(); return; }
+  const hours = nextS === 'keldi' ? FULL_DAY_HOURS : 0;
+  ref.set({ s: nextS, h: hours });
+}
+function updateHours(empId, key, value) {
+  let h = parseFloat(value);
+  if (isNaN(h) || h < 0) h = 0;
+  if (h > 24) h = 24;
+  db.ref(`attendance/${empId}/${key}`).set({ s: 'keldi', h: h });
 }
 
-/* ---------------- ADVANCES ---------------- */
 function addAdvance() {
   const dateInput = document.getElementById('advDate');
   const amtInput = document.getElementById('advAmt');
@@ -327,61 +302,55 @@ function addAdvance() {
   if (!selectedEmp || amount <= 0) return;
   db.ref('advances').push({ empId: selectedEmp, date, amount, note });
 }
-function delAdvance(id) {
-  db.ref('advances/' + id).remove();
-}
+function delAdvance(id) { db.ref('advances/' + id).remove(); }
 
-/* ---------------- CALC ---------------- */
 function empMonthStats(empId, y, m) {
   const dim = daysInMonth(y, m);
   const att = state.attendance[empId] || {};
-  let keldi = 0, kelmadi = 0, dam = 0;
+  let keldiDays = 0, kelmadi = 0, dam = 0, totalHours = 0;
   for (let d = 1; d <= dim; d++) {
-    const st = att[dateKey(y, m, d)];
-    if (st === 'keldi') keldi++;
-    else if (st === 'kelmadi') kelmadi++;
-    else if (st === 'dam') dam++;
+    const raw = att[dateKey(y, m, d)];
+    const a = normAtt(raw);
+    if (!a) continue;
+    if (a.s === 'keldi') { keldiDays++; totalHours += (a.h || 0); }
+    else if (a.s === 'kelmadi') kelmadi++;
+    else if (a.s === 'dam') dam++;
   }
   const emp = state.employees[empId] || {};
   const normDays = emp.normDays || 26;
   const salary = emp.salary || 0;
   const kunlikStavka = normDays > 0 ? salary / normDays : 0;
-  const ishlaganSumma = kunlikStavka * keldi;
+  const stavkaCount = totalHours / FULL_DAY_HOURS;
+  const ishlaganSumma = kunlikStavka * stavkaCount;
   const advJami = Object.values(state.advances)
     .filter(a => a.empId === empId && a.date.startsWith(`${y}-${pad(m)}`))
     .reduce((s, a) => s + a.amount, 0);
   const qoldiq = ishlaganSumma - advJami;
-  return { keldi, kelmadi, dam, kunlikStavka, ishlaganSumma, advJami, qoldiq, salary };
+  return { keldiDays, kelmadi, dam, totalHours, stavkaCount, kunlikStavka, ishlaganSumma, advJami, qoldiq, salary };
 }
 
-/* ---------------- SEND REPORT ---------------- */
 function reportText(emp, st) {
   return `Salom, ${emp.name}!\n${MONTH_NAMES[curMonth-1]} ${curYear} oyi uchun tabelingiz:\n` +
-    `Ishlagan kunlar: ${st.keldi}\nOylik maosh: ${fmt(st.salary)} so'm\n` +
-    `Olingan avans: ${fmt(st.advJami)} so'm\nOxirgi qoldiq (to'lov): ${fmt(st.qoldiq)} so'm`;
+    `Ishlagan kunlar: ${st.keldiDays} (jami ${fmt(st.totalHours)} soat, ${st.stavkaCount.toFixed(2)} stavka)\n` +
+    `Oylik maosh: ${fmt(st.salary)} so'm\nOlingan avans: ${fmt(st.advJami)} so'm\n` +
+    `Oxirgi qoldiq (to'lov): ${fmt(st.qoldiq)} so'm`;
 }
 function sendSms(empId) {
-  const emp = state.employees[empId];
-  const st = empMonthStats(empId, curYear, curMonth);
+  const emp = state.employees[empId]; const st = empMonthStats(empId, curYear, curMonth);
   const phone = cleanPhone(emp.phone);
   if (!phone) { alert("Avval xodimning telefon raqamini kiriting."); return; }
-  const text = encodeURIComponent(reportText(emp, st));
-  window.location.href = `sms:${phone}?body=${text}`;
+  window.location.href = `sms:${phone}?body=${encodeURIComponent(reportText(emp, st))}`;
 }
 function sendWhatsapp(empId) {
-  const emp = state.employees[empId];
-  const st = empMonthStats(empId, curYear, curMonth);
+  const emp = state.employees[empId]; const st = empMonthStats(empId, curYear, curMonth);
   const phone = cleanPhone(emp.phone);
   if (!phone) { alert("Avval xodimning telefon raqamini kiriting."); return; }
-  const text = encodeURIComponent(reportText(emp, st));
-  window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(reportText(emp, st))}`, '_blank');
 }
 
-/* ---------------- EXCEL EXPORT ---------------- */
 function exportExcel() {
   const wb = XLSX.utils.book_new();
   const emps = empList();
-
   const empData = [["Ism", "Oylik maosh", "Ish kunlari me'yori", "Telefon"]];
   emps.forEach(e => empData.push([e.name, e.salary, e.normDays, e.phone || ""]));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(empData), "Xodimlar");
@@ -394,99 +363,67 @@ function exportExcel() {
     const row = [e.name];
     const att = state.attendance[e.id] || {};
     for (let d = 1; d <= dim; d++) {
-      const st = att[dateKey(curYear, curMonth, d)];
-      row.push(st === 'keldi' ? 'K' : st === 'kelmadi' ? 'X' : st === 'dam' ? 'D' : '');
+      const a = normAtt(att[dateKey(curYear, curMonth, d)]);
+      if (!a) row.push('');
+      else if (a.s === 'keldi') row.push(a.h);
+      else if (a.s === 'kelmadi') row.push('X');
+      else if (a.s === 'dam') row.push('D');
     }
     attData.push(row);
   });
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(attData), "Davomat");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(attData), "Davomat (soat)");
 
   const advData = [["Xodim", "Sana", "Summa", "Izoh"]];
-  Object.values(state.advances)
-    .filter(a => a.date.startsWith(`${curYear}-${pad(curMonth)}`))
-    .forEach(a => {
-      const emp = state.employees[a.empId];
-      advData.push([emp ? emp.name : "", a.date, a.amount, a.note || ""]);
-    });
+  Object.values(state.advances).filter(a => a.date.startsWith(`${curYear}-${pad(curMonth)}`)).forEach(a => {
+    const emp = state.employees[a.empId];
+    advData.push([emp ? emp.name : "", a.date, a.amount, a.note || ""]);
+  });
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(advData), "Avanslar");
 
-  const repData = [["Ism", "Ishlagan kun", "Kelmagan kun", "Oylik maosh", "Kunlik stavka", "Ishlagan summa", "Avans", "Oxirgi qoldiq"]];
+  const repData = [["Ism", "Ishlagan kun", "Jami soat", "Stavka", "Oylik maosh", "Kunlik stavka", "Ishlagan summa", "Avans", "Oxirgi qoldiq"]];
   emps.forEach(e => {
     const st = empMonthStats(e.id, curYear, curMonth);
-    repData.push([e.name, st.keldi, st.kelmadi, st.salary, Math.round(st.kunlikStavka), Math.round(st.ishlaganSumma), st.advJami, Math.round(st.qoldiq)]);
+    repData.push([e.name, st.keldiDays, st.totalHours, Number(st.stavkaCount.toFixed(2)), st.salary, Math.round(st.kunlikStavka), Math.round(st.ishlaganSumma), st.advJami, Math.round(st.qoldiq)]);
   });
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(repData), "Hisobot");
-
   XLSX.writeFile(wb, `Tabel_${MONTH_NAMES[curMonth-1]}_${curYear}.xlsx`);
 }
 
-/* ---------------- RENDER ---------------- */
-function render() {
-  renderMonthBar();
-  renderSummary();
-  renderSettings();
-  renderContent();
-  renderAddBtn();
-}
+function render() { renderMonthBar(); renderSummary(); renderSettings(); renderContent(); renderAddBtn(); }
 
 function renderMonthBar() {
   const holder = document.getElementById('monthBarHolder');
   if (activeTab === 'employees') { holder.innerHTML = ''; return; }
-  holder.innerHTML = `
-    <div class="month-bar">
-      <button onclick="changeMonth(-1)">‹</button>
-      <div class="mlabel">${MONTH_NAMES[curMonth-1]} ${curYear}</div>
-      <button onclick="changeMonth(1)">›</button>
-    </div>`;
+  holder.innerHTML = `<div class="month-bar"><button onclick="changeMonth(-1)">‹</button><div class="mlabel">${MONTH_NAMES[curMonth-1]} ${curYear}</div><button onclick="changeMonth(1)">›</button></div>`;
 }
-
 function renderSettings() {
   const holder = document.getElementById('settingsHolder');
   if (!showSettings) { holder.innerHTML = ''; return; }
-  holder.innerHTML = `
-    <div class="settings-panel">
-      <h3>🔒 Xavfsizlik</h3>
-      <button class="add-btn" style="margin-top:0;" onclick="changePin()">PIN kodni o'zgartirish</button>
-    </div>`;
+  holder.innerHTML = `<div class="settings-panel"><h3>🔒 Xavfsizlik</h3><button class="add-btn" style="margin-top:0;" onclick="changePin()">PIN kodni o'zgartirish</button></div>`;
 }
-
 function renderSummary() {
   const summary = document.getElementById('summary');
   const emps = empList();
   if (activeTab === 'employees') {
-    summary.innerHTML = `
-      <div class="card"><div class="num">${emps.length}</div><div class="lbl">Jami xodimlar</div></div>
-      <div class="card"><div class="num">${fmt(emps.reduce((s,e)=>s+(e.salary||0),0))}</div><div class="lbl">Jami oylik fond (so'm)</div></div>`;
+    summary.innerHTML = `<div class="card"><div class="num">${emps.length}</div><div class="lbl">Jami xodimlar</div></div><div class="card"><div class="num">${fmt(emps.reduce((s,e)=>s+(e.salary||0),0))}</div><div class="lbl">Jami oylik fond (so'm)</div></div>`;
   } else if (activeTab === 'attendance') {
     if (!selectedEmp) { summary.innerHTML = ''; return; }
     const st = empMonthStats(selectedEmp, curYear, curMonth);
-    summary.innerHTML = `
-      <div class="card"><div class="num">${st.keldi}</div><div class="lbl">Keldi</div></div>
-      <div class="card"><div class="num">${st.kelmadi}</div><div class="lbl">Kelmadi</div></div>
-      <div class="card"><div class="num">${st.dam}</div><div class="lbl">Dam olish</div></div>`;
+    summary.innerHTML = `<div class="card"><div class="num">${st.keldiDays}</div><div class="lbl">Keldi (kun)</div></div><div class="card"><div class="num">${fmt(st.totalHours)}</div><div class="lbl">Jami soat</div></div><div class="card"><div class="num">${st.stavkaCount.toFixed(2)}</div><div class="lbl">Stavka</div></div>`;
   } else if (activeTab === 'advances') {
     if (!selectedEmp) { summary.innerHTML = ''; return; }
     const st = empMonthStats(selectedEmp, curYear, curMonth);
-    summary.innerHTML = `
-      <div class="card"><div class="num">${fmt(st.advJami)}</div><div class="lbl">Shu oy avans (so'm)</div></div>
-      <div class="card"><div class="num">${fmt(st.qoldiq)}</div><div class="lbl">Joriy qoldiq (so'm)</div></div>`;
+    summary.innerHTML = `<div class="card"><div class="num">${fmt(st.advJami)}</div><div class="lbl">Shu oy avans (so'm)</div></div><div class="card"><div class="num">${fmt(st.qoldiq)}</div><div class="lbl">Joriy qoldiq (so'm)</div></div>`;
   } else if (activeTab === 'report') {
     const totalPay = emps.reduce((s,e)=> s + empMonthStats(e.id, curYear, curMonth).ishlaganSumma, 0);
     const totalAdv = emps.reduce((s,e)=> s + empMonthStats(e.id, curYear, curMonth).advJami, 0);
-    const totalLeft = totalPay - totalAdv;
-    summary.innerHTML = `
-      <div class="card"><div class="num">${fmt(totalPay)}</div><div class="lbl">Jami ishlangan (so'm)</div></div>
-      <div class="card"><div class="num">${fmt(totalAdv)}</div><div class="lbl">Jami avans (so'm)</div></div>
-      <div class="card"><div class="num">${fmt(totalLeft)}</div><div class="lbl">Jami to'lanadigan (so'm)</div></div>`;
+    summary.innerHTML = `<div class="card"><div class="num">${fmt(totalPay)}</div><div class="lbl">Jami ishlangan (so'm)</div></div><div class="card"><div class="num">${fmt(totalAdv)}</div><div class="lbl">Jami avans (so'm)</div></div><div class="card"><div class="num">${fmt(totalPay-totalAdv)}</div><div class="lbl">Jami to'lanadigan (so'm)</div></div>`;
   }
 }
-
 function empSelectHtml() {
   const emps = empList();
   if (!emps.length) return `<div class="empty">Avval "Xodimlar" bo'limida xodim qo'shing.</div>`;
-  return `<select class="emp-select" onchange="selectedEmp = this.value; render();">
-    ${emps.map(e => `<option value="${e.id}" ${e.id===selectedEmp?'selected':''}>${e.name || 'Ism kiritilmagan'}</option>`).join('')}
-  </select>`;
+  return `<select class="emp-select" onchange="selectedEmp = this.value; render();">${emps.map(e => `<option value="${e.id}" ${e.id===selectedEmp?'selected':''}>${e.name || 'Ism kiritilmagan'}</option>`).join('')}</select>`;
 }
 
 function renderContent() {
@@ -494,10 +431,7 @@ function renderContent() {
   const emps = empList();
 
   if (activeTab === 'employees') {
-    if (!emps.length) {
-      content.innerHTML = `<div class="empty">Hali xodim yo'q.<br>"+ Yangi xodim" tugmasini bosing.</div>`;
-      return;
-    }
+    if (!emps.length) { content.innerHTML = `<div class="empty">Hali xodim yo'q.<br>"+ Yangi xodim" tugmasini bosing.</div>`; return; }
     content.innerHTML = emps.map(e => `
       <div class="item">
         <div class="item-top">
@@ -522,13 +456,19 @@ function renderContent() {
       for (let d = 1; d <= dim; d++) {
         const key = dateKey(curYear, curMonth, d);
         const wd = new Date(curYear, curMonth-1, d).getDay();
-        const st = att[key];
+        const a = normAtt(att[key]);
         const isWeekend = wd === 0 || wd === 6;
-        const cls = st || 'none';
-        const label = st === 'keldi' ? 'Keldi' : st === 'kelmadi' ? 'Kelmadi' : st === 'dam' ? 'Dam olish' : "Belgilanmagan";
+        const cls = a ? a.s : 'none';
+        const label = a ? (a.s === 'keldi' ? 'Keldi' : a.s === 'kelmadi' ? 'Kelmadi' : 'Dam olish') : "Belgilanmagan";
+        const hoursField = (a && a.s === 'keldi')
+          ? `<input class="hours-input" type="number" step="0.5" min="0" max="24" value="${a.h}" onchange="updateHours('${selectedEmp}','${key}',this.value)"><span class="hours-lbl">soat</span>`
+          : '';
         html += `<div class="day-row ${isWeekend ? 'weekend' : ''}">
           <div class="dinfo">${d}-kun <span class="wd">${WD_NAMES[wd]}</span></div>
-          <button class="status-btn ${cls}" onclick="cycleStatus('${selectedEmp}', '${key}')">${label}</button>
+          <div class="right">
+            <button class="status-btn ${cls}" onclick="cycleStatus('${selectedEmp}', '${key}')">${label}</button>
+            ${hoursField}
+          </div>
         </div>`;
       }
       html += '</div>';
@@ -540,65 +480,38 @@ function renderContent() {
   if (activeTab === 'advances') {
     let html = empSelectHtml();
     if (selectedEmp) {
-      html += `
-        <div class="adv-form">
-          <input type="date" id="advDate" value="${dateKey(curYear, curMonth, Math.min(now.getDate(), daysInMonth(curYear,curMonth)))}">
-          <input type="number" id="advAmt" placeholder="Summa (so'm)">
-          <input type="text" id="advNote" placeholder="Izoh (ixtiyoriy)" style="grid-column: span 2;">
-        </div>
-        <button class="add-btn" style="margin-bottom:14px;" onclick="addAdvance()">+ Avans qo'shish</button>`;
-      const list = Object.keys(state.advances)
-        .map(k => ({ id: k, ...state.advances[k] }))
-        .filter(a => a.empId === selectedEmp)
-        .sort((a,b) => b.date.localeCompare(a.date));
-      if (!list.length) {
-        html += `<div class="empty">Hali avans yozuvi yo'q.</div>`;
-      } else {
-        html += list.map(a => `
-          <div class="adv-row">
-            <div class="ainfo"><div>${a.note || 'Avans'}</div><div class="adate">${a.date}</div></div>
-            <div style="display:flex;align-items:center;gap:10px;">
-              <div class="aamt">${fmt(a.amount)} so'm</div>
-              <button class="del" onclick="delAdvance('${a.id}')">✕</button>
-            </div>
-          </div>`).join('');
-      }
+      html += `<div class="adv-form"><input type="date" id="advDate" value="${dateKey(curYear, curMonth, Math.min(now.getDate(), daysInMonth(curYear,curMonth)))}"><input type="number" id="advAmt" placeholder="Summa (so'm)"><input type="text" id="advNote" placeholder="Izoh (ixtiyoriy)" style="grid-column: span 2;"></div><button class="add-btn" style="margin-bottom:14px;" onclick="addAdvance()">+ Avans qo'shish</button>`;
+      const list = Object.keys(state.advances).map(k => ({ id: k, ...state.advances[k] })).filter(a => a.empId === selectedEmp).sort((a,b) => b.date.localeCompare(a.date));
+      if (!list.length) { html += `<div class="empty">Hali avans yozuvi yo'q.</div>`; }
+      else { html += list.map(a => `<div class="adv-row"><div class="ainfo"><div>${a.note || 'Avans'}</div><div class="adate">${a.date}</div></div><div style="display:flex;align-items:center;gap:10px;"><div class="aamt">${fmt(a.amount)} so'm</div><button class="del" onclick="delAdvance('${a.id}')">✕</button></div></div>`).join(''); }
     }
     content.innerHTML = html;
     return;
   }
 
   if (activeTab === 'report') {
-    if (!emps.length) {
-      content.innerHTML = `<div class="empty">Hali xodim yo'q.</div>`;
-      return;
-    }
-    content.innerHTML = `<button class="solid-btn" onclick="exportExcel()">📥 Excel (.xlsx) ko'rinishida yuklab olish</button>` +
-      emps.map(e => {
-        const st = empMonthStats(e.id, curYear, curMonth);
-        const hasPhone = !!cleanPhone(e.phone);
-        return `
-          <div class="rep-card">
-            <div class="rep-name">${e.name || 'Ism kiritilmagan'}</div>
-            <div class="rep-phone">${e.phone ? '📞 ' + e.phone : 'Telefon raqami kiritilmagan'}</div>
-            <div class="rep-grid">
-              <div class="rlbl">Ishlagan kunlar</div><div class="rval">${st.keldi} kun</div>
-              <div class="rlbl">Kelmagan kunlar</div><div class="rval">${st.kelmadi} kun</div>
-              <div class="rlbl">Oylik maosh</div><div class="rval">${fmt(st.salary)} so'm</div>
-              <div class="rlbl">Kunlik stavka</div><div class="rval">${fmt(st.kunlikStavka)} so'm</div>
-              <div class="rlbl">Ishlagan summa</div><div class="rval">${fmt(st.ishlaganSumma)} so'm</div>
-              <div class="rlbl">Olgan avans</div><div class="rval">${fmt(st.advJami)} so'm</div>
-            </div>
-            <div class="rep-final">
-              <div class="flbl">OXIRGI QOLDIQ</div>
-              <div class="fval">${fmt(st.qoldiq)} so'm</div>
-            </div>
-            <div class="send-row">
-              <button class="send-btn sms ${hasPhone?'':'disabled'}" onclick="sendSms('${e.id}')">💬 SMS yuborish</button>
-              <button class="send-btn wa ${hasPhone?'':'disabled'}" onclick="sendWhatsapp('${e.id}')">🟢 WhatsApp</button>
-            </div>
-          </div>`;
-      }).join('');
+    if (!emps.length) { content.innerHTML = `<div class="empty">Hali xodim yo'q.</div>`; return; }
+    content.innerHTML = `<button class="solid-btn" onclick="exportExcel()">📥 Excel (.xlsx) ko'rinishida yuklab olish</button>` + emps.map(e => {
+      const st = empMonthStats(e.id, curYear, curMonth);
+      const hasPhone = !!cleanPhone(e.phone);
+      return `<div class="rep-card">
+        <div class="rep-name">${e.name || 'Ism kiritilmagan'}</div>
+        <div class="rep-phone">${e.phone ? '📞 ' + e.phone : 'Telefon raqami kiritilmagan'}</div>
+        <div class="rep-grid">
+          <div class="rlbl">Ishlagan kunlar</div><div class="rval">${st.keldiDays} kun</div>
+          <div class="rlbl">Jami soat</div><div class="rval">${fmt(st.totalHours)} soat</div>
+          <div class="rlbl">Stavka</div><div class="rval">${st.stavkaCount.toFixed(2)}</div>
+          <div class="rlbl">Oylik maosh</div><div class="rval">${fmt(st.salary)} so'm</div>
+          <div class="rlbl">Ishlagan summa</div><div class="rval">${fmt(st.ishlaganSumma)} so'm</div>
+          <div class="rlbl">Olgan avans</div><div class="rval">${fmt(st.advJami)} so'm</div>
+        </div>
+        <div class="rep-final"><div class="flbl">OXIRGI QOLDIQ</div><div class="fval">${fmt(st.qoldiq)} so'm</div></div>
+        <div class="send-row">
+          <button class="send-btn sms ${hasPhone?'':'disabled'}" onclick="sendSms('${e.id}')">💬 SMS yuborish</button>
+          <button class="send-btn wa ${hasPhone?'':'disabled'}" onclick="sendWhatsapp('${e.id}')">🟢 WhatsApp</button>
+        </div>
+      </div>`;
+    }).join('');
   }
 }
 
@@ -607,20 +520,14 @@ function renderAddBtn() {
   if (activeTab === 'employees') {
     holder.innerHTML = `<button class="add-btn" id="addBtn">+ Yangi xodim</button>`;
     document.getElementById('addBtn').addEventListener('click', addEmployee);
-  } else {
-    holder.innerHTML = '';
-  }
+  } else { holder.innerHTML = ''; }
 }
 
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
 document.getElementById('settingsBtn').addEventListener('click', () => { showSettings = !showSettings; renderSettings(); });
-
 initLock();
-
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  });
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 }
 </script>
 </body>
